@@ -1,0 +1,16 @@
+{
+  "name": "Rights 4 Her Uganda — GBV Reporting Tool",
+  "short_name": "R4H GBV Tool",
+  "description": "Safe, confidential gender-based violence incident reporting",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#7bdcb5",
+  "theme_color": "#7bdcb5",
+  "orientation": "portrait",
+  "lang": "en-UG",
+  "categories": ["health", "social"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
