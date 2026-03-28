@@ -30,11 +30,12 @@ export default function CaseDetail() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
 
-  const [incident, setIncident] = useState<any>(null);
-  const [loading, setLoading]   = useState(true);
-  const [saving, setSaving]     = useState(false);
-  const [saved, setSaved]       = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [incident,  setIncident]  = useState<any>(null);
+  const [loading,   setLoading]   = useState(true);
+  const [saving,    setSaving]    = useState(false);
+  const [saved,     setSaved]     = useState(false);
+  const [deleting,  setDeleting]  = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const [caseStatus, setCaseStatus] = useState("Open");
   const [cm, setCm] = useState({
@@ -80,17 +81,23 @@ export default function CaseDetail() {
     router.push("/admin/dashboard");
   }
 
+  function handleExport() {
+    setExporting(true);
+    window.open(`/api/admin/cases/${id}/export`, "_blank");
+    setTimeout(() => setExporting(false), 2000);
+  }
+
   const toggleRisk = (opt: string) =>
     setCm(p => ({ ...p, riskAssessment: p.riskAssessment.includes(opt) ? p.riskAssessment.filter(r => r !== opt) : [...p.riskAssessment, opt] }));
 
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}><p className="text-gray-400 text-sm">Loading case…</p></div>;
   if (!incident) return <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}><p className="text-gray-500">Case not found.</p></div>;
 
-  const inc = incident.incident || {};
-  const sur = incident.survivor || {};
-  const ctx = incident.context  || {};
-  const rep = incident.reporting || {};
-  const ned = incident.needs    || {};
+  const inc = incident.incident   || {};
+  const sur = incident.survivor   || {};
+  const ctx = incident.context    || {};
+  const rep = incident.reporting  || {};
+  const ned = incident.needs      || {};
   const ref = incident.reflection || {};
 
   return (
@@ -108,7 +115,17 @@ export default function CaseDetail() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-400 hidden sm:block">Recorded {format(new Date(incident.dateRecorded), "dd MMM yyyy, HH:mm")}</span>
-            <button onClick={handleDelete} disabled={deleting} className="text-xs text-red-400 hover:text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-40">
+            {/* Export PDF button */}
+            <button onClick={handleExport} disabled={exporting}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg,#254252,#7bdcb5)" }}>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              </svg>
+              {exporting ? "Opening…" : "Export PDF"}
+            </button>
+            <button onClick={handleDelete} disabled={deleting}
+              className="text-xs text-red-400 hover:text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-40">
               {deleting ? "Deleting…" : "Delete Case"}
             </button>
           </div>
@@ -120,22 +137,22 @@ export default function CaseDetail() {
         <div className="lg:col-span-2 space-y-4">
           <Section title="Survivor Information">
             <InfoRow label="Preferred Name / Code" value={sur.preferredName} />
-            <InfoRow label="Age Range" value={sur.ageRange} />
-            <InfoRow label="Gender Identity" value={sur.genderIdentity} />
+            <InfoRow label="Age Range"              value={sur.ageRange} />
+            <InfoRow label="Gender Identity"        value={sur.genderIdentity} />
             <InfoRow label="Gender (Self-describe)" value={sur.genderIdentityOther} />
-            <InfoRow label="Sexual Orientation" value={sur.sexualOrientation} />
-            <InfoRow label="Disability Status" value={sur.disabilityStatus} />
-            <InfoRow label="District" value={sur.district} />
-            <InfoRow label="Sub-County" value={sur.subCounty} />
-            <InfoRow label="Occupation" value={sur.occupation} />
+            <InfoRow label="Sexual Orientation"     value={sur.sexualOrientation} />
+            <InfoRow label="Disability Status"      value={sur.disabilityStatus} />
+            <InfoRow label="District"               value={sur.district} />
+            <InfoRow label="Sub-County"             value={sur.subCounty} />
+            <InfoRow label="Occupation"             value={sur.occupation} />
           </Section>
 
           <Section title="Nature of Violation">
-            <InfoRow label="Violence Types" value={inc.violenceTypes} />
+            <InfoRow label="Violence Types"      value={inc.violenceTypes} />
             <InfoRow label="Digital Abuse Types" value={inc.digitalAbuseTypes} />
-            <InfoRow label="Perpetrator" value={inc.perpetrator} />
-            <InfoRow label="Date of Incident" value={inc.incidentDate ? format(new Date(inc.incidentDate), "dd MMM yyyy") : null} />
-            <InfoRow label="Location" value={inc.location} />
+            <InfoRow label="Perpetrator"         value={inc.perpetrator} />
+            <InfoRow label="Date of Incident"    value={inc.incidentDate ? format(new Date(inc.incidentDate), "dd MMM yyyy") : null} />
+            <InfoRow label="Location"            value={inc.location} />
             {inc.description && (
               <div className="mt-3 p-4 rounded-lg bg-gray-50 border border-gray-100">
                 <p className="text-xs text-gray-400 font-medium mb-1">Description</p>
@@ -145,32 +162,32 @@ export default function CaseDetail() {
           </Section>
 
           <Section title="Context & Contributing Factors">
-            <InfoRow label="Linked to SOGI" value={ctx.linkedToSOGI} />
-            <InfoRow label="Linked to Environment" value={ctx.linkedToEnvironment} />
+            <InfoRow label="Linked to SOGI"            value={ctx.linkedToSOGI} />
+            <InfoRow label="Linked to Environment"     value={ctx.linkedToEnvironment} />
             <InfoRow label="Environmental Description" value={ctx.environmentDescription} />
-            <InfoRow label="Contributing Factors" value={ctx.contributingFactors} />
+            <InfoRow label="Contributing Factors"      value={ctx.contributingFactors} />
           </Section>
 
           <Section title="Reporting & Response">
-            <InfoRow label="Did Report?" value={rep.didReport} />
-            <InfoRow label="Reported To" value={rep.reportedTo} />
-            <InfoRow label="Report Outcome" value={rep.reportOutcome} />
+            <InfoRow label="Did Report?"       value={rep.didReport} />
+            <InfoRow label="Reported To"       value={rep.reportedTo} />
+            <InfoRow label="Report Outcome"    value={rep.reportOutcome} />
             <InfoRow label="Services Received" value={rep.servicesReceived} />
-            <InfoRow label="Barriers" value={rep.barriers} />
+            <InfoRow label="Barriers"          value={rep.barriers} />
           </Section>
 
           <Section title="Current Needs">
-            <InfoRow label="Priority Support" value={ned.prioritySupport} />
-            <InfoRow label="Urgency Level" value={ned.urgencyLevel} />
+            <InfoRow label="Priority Support"    value={ned.prioritySupport} />
+            <InfoRow label="Urgency Level"       value={ned.urgencyLevel} />
             <InfoRow label="Consent for Contact" value={ned.consentForContact} />
-            <InfoRow label="Contact Methods" value={ned.contactMethods} />
+            <InfoRow label="Contact Methods"     value={ned.contactMethods} />
           </Section>
 
           {(ref.communityConnection || ref.communitySafetyVision || ref.healingMessage) && (
             <Section title="Reflection & Healing">
               <InfoRow label="Community Connection" value={ref.communityConnection} />
-              <InfoRow label="Safety Vision" value={ref.communitySafetyVision} />
-              <InfoRow label="Healing Message" value={ref.healingMessage} />
+              <InfoRow label="Safety Vision"        value={ref.communitySafetyVision} />
+              <InfoRow label="Healing Message"      value={ref.healingMessage} />
             </Section>
           )}
         </div>
@@ -189,7 +206,6 @@ export default function CaseDetail() {
           <div className="bg-white rounded-xl p-5 border border-primary-100 shadow-sm" style={{ borderColor: "#f9a8d4" }}>
             <h2 className="text-base font-semibold text-gray-800 mb-1" style={{ fontFamily: "'Playfair Display',serif" }}>Section 6: Case Management</h2>
             <p className="text-xs text-gray-400 mb-4">Staff only — fill in after reviewing the submission.</p>
-
             <div className="space-y-4">
               <div>
                 <label className="form-label">Case Officer</label>
