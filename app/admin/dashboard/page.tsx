@@ -2,30 +2,29 @@
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import PushToggle from "@/components/admin/PushToggle";
 import { UGANDA_DISTRICTS } from "@/lib/constants";
 
-const URGENCY_CLS: Record<string, string> = { Emergency: "badge-emergency", High: "badge-high", Medium: "badge-medium", Low: "badge-low" };
-const STATUS_CLS: Record<string, string> = { Open: "status-open", Referred: "status-referred", Closed: "status-closed" };
+const URGENCY_CLS: Record<string,string> = { Emergency:"badge-emergency", High:"badge-high", Medium:"badge-medium", Low:"badge-low" };
+const STATUS_CLS:  Record<string,string> = { Open:"status-open", Referred:"status-referred", Closed:"status-closed" };
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [rows, setRows] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
-  const [pages, setPages] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [rows, setRows]           = useState<any[]>([]);
+  const [total, setTotal]         = useState(0);
+  const [pages, setPages]         = useState(1);
+  const [loading, setLoading]     = useState(true);
   const [exporting, setExporting] = useState(false);
 
-  const [statusF, setStatusF] = useState("all");
-  const [urgencyF, setUrgencyF] = useState("all");
-  const [districtF, setDistrictF] = useState("all");
+  const [statusF,    setStatusF]    = useState("all");
+  const [urgencyF,   setUrgencyF]   = useState("all");
+  const [districtF,  setDistrictF]  = useState("all");
   const [subCountyF, setSubCountyF] = useState("all");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const [search,     setSearch]     = useState("");
+  const [page,       setPage]       = useState(1);
 
   const subCountyOptions = districtF !== "all" ? (UGANDA_DISTRICTS[districtF] || []) : [];
 
@@ -36,7 +35,7 @@ export default function Dashboard() {
   async function fetchRows() {
     setLoading(true);
     const p = new URLSearchParams({ status: statusF, urgency: urgencyF, district: districtF, subCounty: subCountyF, search, page: String(page), limit: "20" });
-    const res = await fetch(`/api/admin?${p}`);
+    const res  = await fetch(`/api/admin?${p}`);
     const data = await res.json();
     setRows(data.incidents || []); setTotal(data.total || 0); setPages(data.pages || 1);
     setLoading(false);
@@ -50,10 +49,10 @@ export default function Dashboard() {
   }
 
   const stats = [
-    { label: "Total", value: total, color: "#254252" },
-    { label: "Open", value: rows.filter(r => r.status === "Open").length, color: "#2563EB" },
+    { label: "Total",    value: total,                                             color: "#254252" },
+    { label: "Open",     value: rows.filter(r => r.status === "Open").length,     color: "#2563EB" },
     { label: "Referred", value: rows.filter(r => r.status === "Referred").length, color: "#7C3AED" },
-    { label: "Closed", value: rows.filter(r => r.status === "Closed").length, color: "#6B7280" },
+    { label: "Closed",   value: rows.filter(r => r.status === "Closed").length,   color: "#6B7280" },
   ];
 
   const hasFilters = statusF !== "all" || urgencyF !== "all" || districtF !== "all" || subCountyF !== "all" || search;
@@ -65,23 +64,10 @@ export default function Dashboard() {
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-gray-200">
-              <Image
-                src="/logo.jpg"
-                alt="Rights 4 Her Uganda logo"
-                fill
-                className="object-cover"
-              />
-            </div>
-
+            <span className="text-xl">🌸</span>
             <div>
               <p className="text-xs text-gray-400">Rights 4 Her Uganda</p>
-              <h1
-                className="text-sm font-semibold text-gray-800"
-                style={{ fontFamily: "'Playfair Display',serif" }}
-              >
-                GBV Case Management
-              </h1>
+              <h1 className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Playfair Display',serif" }}>GBV Case Management</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -115,7 +101,7 @@ export default function Dashboard() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm text-white whitespace-nowrap transition-all hover:opacity-90 disabled:opacity-60"
                 style={{ background: "linear-gradient(135deg,#254252,#7bdcb5)" }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                 </svg>
                 {exporting ? "Opening…" : "Export PDF"}
               </button>
@@ -151,9 +137,9 @@ export default function Dashboard() {
             {hasFilters && (
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-gray-400">Active filters:</span>
-                {statusF !== "all" && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">Status: {statusF}</span>}
-                {urgencyF !== "all" && <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">Urgency: {urgencyF}</span>}
-                {districtF !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">District: {districtF}</span>}
+                {statusF    !== "all" && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">Status: {statusF}</span>}
+                {urgencyF   !== "all" && <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">Urgency: {urgencyF}</span>}
+                {districtF  !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">District: {districtF}</span>}
                 {subCountyF !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">Sub-County: {subCountyF}</span>}
                 {search && <span className="text-xs bg-gray-50 text-gray-600 border border-gray-200 px-2 py-0.5 rounded-full">Search: {search}</span>}
                 <button onClick={() => { setStatusF("all"); setUrgencyF("all"); setDistrictF("all"); setSubCountyF("all"); setSearch(""); setPage(1); }}
@@ -187,7 +173,7 @@ export default function Dashboard() {
                       <td className="text-xs">{row.survivor?.subCounty || "—"}</td>
                       <td>
                         <div className="flex flex-wrap gap-1">
-                          {(row.incident?.violenceTypes || []).slice(0, 2).map((t: string) => (
+                          {(row.incident?.violenceTypes || []).slice(0,2).map((t: string) => (
                             <span key={t} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{t}</span>
                           ))}
                           {(row.incident?.violenceTypes || []).length > 2 && (
@@ -213,8 +199,8 @@ export default function Dashboard() {
             <div className="px-4 py-3 border-t border-gray-50 flex items-center justify-between">
               <p className="text-xs text-gray-400">Page {page} of {pages} · {total} total</p>
               <div className="flex gap-2">
-                <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Previous</button>
-                <button onClick={() => setPage(p => Math.min(p + 1, pages))} disabled={page === pages} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
+                <button onClick={() => setPage(p => Math.max(p-1,1))} disabled={page===1} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Previous</button>
+                <button onClick={() => setPage(p => Math.min(p+1,pages))} disabled={page===pages} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
               </div>
             </div>
           )}

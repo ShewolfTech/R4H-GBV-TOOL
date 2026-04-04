@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Incident from "@/models/Incident";
 
@@ -57,76 +57,76 @@ function section(title: string, rows: string) {
 }
 
 function buildSingleCasePDF(incident: any) {
-  const sur = incident.survivor || {};
-  const inc = incident.incident || {};
-  const ctx = incident.context || {};
-  const rep = incident.reporting || {};
-  const ned = incident.needs || {};
-  const ref = incident.reflection || {};
-  const cm = incident.caseManagement || {};
+  const sur = incident.survivor       || {};
+  const inc = incident.incident       || {};
+  const ctx = incident.context        || {};
+  const rep = incident.reporting      || {};
+  const ned = incident.needs          || {};
+  const ref = incident.reflection     || {};
+  const cm  = incident.caseManagement || {};
 
-  const urgencyColors: Record<string, string> = { Emergency: "#C0392B", High: "#E67E22", Medium: "#F39C12", Low: "#27AE60" };
-  const statusColors: Record<string, string> = { Open: "#2563EB", Referred: "#7C3AED", Closed: "#6B7280" };
+  const urgencyColors: Record<string,string> = { Emergency:"#C0392B", High:"#E67E22", Medium:"#F39C12", Low:"#27AE60" };
+  const statusColors:  Record<string,string> = { Open:"#2563EB", Referred:"#7C3AED", Closed:"#6B7280" };
   const u = ned.urgencyLevel || "";
-  const s = incident.status || "Open";
+  const s = incident.status  || "Open";
   const now = fmtDateTime(new Date());
 
   const survivorRows = [
-    row("Preferred Name / Code", sur.preferredName),
-    row("Age Range", sur.ageRange),
-    row("Gender Identity", sur.genderIdentity),
-    row("Gender (Self-describe)", sur.genderIdentityOther),
-    row("Sexual Orientation", sur.sexualOrientation),
-    row("Disability Status", sur.disabilityStatus),
-    row("District", sur.district),
-    row("Sub-County", sur.subCounty),
-    row("Occupation", sur.occupation),
+    row("Preferred Name / Code",  sur.preferredName),
+    row("Age Range",               sur.ageRange),
+    row("Gender Identity",         sur.genderIdentity),
+    row("Gender (Self-describe)",  sur.genderIdentityOther),
+    row("Sexual Orientation",      sur.sexualOrientation),
+    row("Disability Status",       sur.disabilityStatus),
+    row("District",                sur.district),
+    row("Sub-County",              sur.subCounty),
+    row("Occupation",              sur.occupation),
   ].join("");
 
   const incidentRows = [
-    row("Violence Types", inc.violenceTypes),
-    row("Digital Abuse Types", inc.digitalAbuseTypes),
-    row("Perpetrator", inc.perpetrator),
-    row("Date of Incident", fmt(inc.incidentDate)),
-    row("Location", inc.location),
+    row("Violence Types",          inc.violenceTypes),
+    row("Digital Abuse Types",     inc.digitalAbuseTypes),
+    row("Perpetrator",             inc.perpetrator),
+    row("Date of Incident",        fmt(inc.incidentDate)),
+    row("Location",                inc.location),
     inc.description ? `<tr><td style="padding:7px 12px;font-size:11px;color:#666;font-weight:500;vertical-align:top;border-bottom:1px solid #f0f0f0">Description</td><td style="padding:7px 12px;font-size:12px;color:#1a1a1a;border-bottom:1px solid #f0f0f0;white-space:pre-wrap;line-height:1.6">${inc.description}</td></tr>` : "",
   ].join("");
 
   const contextRows = [
-    row("Linked to SOGI", ctx.linkedToSOGI),
-    row("Linked to Environment", ctx.linkedToEnvironment),
-    row("Environmental Description", ctx.environmentDescription),
-    row("Contributing Factors", ctx.contributingFactors),
+    row("Linked to SOGI",              ctx.linkedToSOGI),
+    row("Linked to Environment",       ctx.linkedToEnvironment),
+    row("Environmental Description",   ctx.environmentDescription),
+    row("Contributing Factors",        ctx.contributingFactors),
   ].join("");
 
   const reportingRows = [
-    row("Did Report?", rep.didReport),
-    row("Reported To", rep.reportedTo),
-    row("Report Outcome", rep.reportOutcome),
+    row("Did Report?",       rep.didReport),
+    row("Reported To",       rep.reportedTo),
+    row("Report Outcome",    rep.reportOutcome),
     row("Services Received", rep.servicesReceived),
-    row("Barriers", rep.barriers),
+    row("Barriers",          rep.barriers),
   ].join("");
 
   const needsRows = [
-    row("Priority Support", ned.prioritySupport),
-    row("Urgency Level", ned.urgencyLevel),
+    row("Priority Support",    ned.prioritySupport),
+    row("Urgency Level",       ned.urgencyLevel),
     row("Consent for Contact", ned.consentForContact),
-    row("Contact Methods", ned.contactMethods),
+    row("Contact Methods",     ned.contactMethods),
   ].join("");
 
   const reflectionRows = [
     row("Community Connection", ref.communityConnection),
-    row("Safety Vision", ref.communitySafetyVision),
-    row("Healing Message", ref.healingMessage),
+    row("Safety Vision",        ref.communitySafetyVision),
+    row("Healing Message",      ref.healingMessage),
   ].join("");
 
   const cmRows = [
-    row("Case Officer", cm.caseOfficer),
-    row("Immediate Actions", cm.immediateActions),
-    row("Referral Partners", cm.referralPartners),
-    row("Risk Assessment", cm.riskAssessment),
-    row("Confidentiality Level", cm.confidentialityLevel),
-    row("Internal Notes", cm.notes),
+    row("Case Officer",           cm.caseOfficer),
+    row("Immediate Actions",      cm.immediateActions),
+    row("Referral Partners",      cm.referralPartners),
+    row("Risk Assessment",        cm.riskAssessment),
+    row("Confidentiality Level",  cm.confidentialityLevel),
+    row("Internal Notes",         cm.notes),
   ].join("");
 
   return `<!DOCTYPE html>
@@ -140,18 +140,18 @@ function buildSingleCasePDF(incident: any) {
     body { font-family:'DM Sans',sans-serif; background:#f5f5f5; color:#1a1a1a; padding:24px; }
     .page { max-width:800px; margin:0 auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
     .header { background:linear-gradient(135deg,#254252,#7bdcb5); padding:28px 32px; color:white; }
-    .org { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
+    .org { font-size:10px; opacity:0.7; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
     .case-ref { font-family:monospace; font-size:22px; font-weight:700; color:#7bdcb5; margin-bottom:4px; }
-    .title { font-size:14px; }
+    .title { font-size:14px; opacity:0.8; }
     .badges { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
     .badge { padding:4px 14px; border-radius:20px; font-size:11px; font-weight:600; }
     .meta-bar { background:#f8f9fa; border-bottom:1px solid #eee; padding:12px 32px; display:flex; gap:24px; flex-wrap:wrap; }
     .meta-item { font-size:11px; }
-    .meta-label { color:#fff; margin-bottom:1px; }
+    .meta-label { color:#999; margin-bottom:1px; }
     .meta-value { color:#1a1a1a; font-weight:500; }
     .body { padding:24px 32px; }
     .confidential { background:#FEF3C7; border:1px solid #F59E0B; border-radius:6px; padding:8px 12px; margin-bottom:20px; font-size:11px; color:#92400E; }
-    .footer { padding:16px 32px; border-top:1px solid #eee; display:flex; justify-content:space-between; font-size:10px; color:#fff; }
+    .footer { padding:16px 32px; border-top:1px solid #eee; display:flex; justify-content:space-between; font-size:10px; color:#999; }
     @media print {
       body { background:white; padding:0; }
       .page { box-shadow:none; border-radius:0; }
@@ -162,23 +162,16 @@ function buildSingleCasePDF(incident: any) {
 <body>
   <div class="page">
     <div class="header">
-    <div style="display:flex; align-items:center; gap:6px;">
-    <!-- Logo -->
-    <img 
-      src="/logo.jpg" 
-      alt="Rights 4 Her Uganda logo" 
-      style="width:48px; height:48px; object-fit:cover; border-radius:3px; border:1px solid rgba(255,255,255,0.2);" 
-    />
       <div class="org">Rights 4 Her Uganda — GBV Documentation Tool</div>
       <div class="case-ref">${incident.caseRef}</div>
       <div class="title">Incident Case Report</div>
       <div class="badges">
-        <span class="badge" style="background:${urgencyColors[u] || "#666"}30;color:${urgencyColors[u] || "#000"};border:1px solid ${urgencyColors[u] || "#666"}50">${u || "Urgency not set"}</span>
-        <span class="badge" style="background:${statusColors[s]}15;color:${statusColors[s]};border:1px solid ${statusColors[s]}50">${s}</span>
+        <span class="badge" style="background:${urgencyColors[u] || "#666"}30;color:${urgencyColors[u] || "#666"};border:1px solid ${urgencyColors[u] || "#666"}50">${u || "Urgency not set"}</span>
+        <span class="badge" style="background:${statusColors[s]}30;color:${statusColors[s]};border:1px solid ${statusColors[s]}50">${s}</span>
         ${cm.confidentialityLevel ? `<span class="badge" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">Confidentiality: ${cm.confidentialityLevel}</span>` : ""}
       </div>
     </div>
-<div>
+
     <div class="meta-bar">
       <div class="meta-item"><div class="meta-label">Date Recorded</div><div class="meta-value">${fmtDateTime(incident.dateRecorded)}</div></div>
       <div class="meta-item"><div class="meta-label">District</div><div class="meta-value">${sur.district || "—"}</div></div>
