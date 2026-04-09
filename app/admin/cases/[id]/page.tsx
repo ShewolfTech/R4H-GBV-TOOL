@@ -181,6 +181,7 @@ export default function CaseDetail() {
             <InfoRow label="Urgency Level"       value={ned.urgencyLevel} />
             <InfoRow label="Consent for Contact" value={ned.consentForContact} />
             <InfoRow label="Contact Methods"     value={ned.contactMethods} />
+            <InfoRow label="Contact Details"     value={ned.contactDetails} />
           </Section>
 
           {(ref.communityConnection || ref.communitySafetyVision || ref.healingMessage) && (

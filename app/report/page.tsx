@@ -22,24 +22,35 @@ export default function ReportPage() {
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const [genderIdentity,    setGenderIdentity]    = useState<string[]>([]);
-  const [disabilityStatus,  setDisabilityStatus]  = useState<string[]>([]);
-  const [violenceTypes,     setViolenceTypes]     = useState<string[]>([]);
-  const [digitalAbuseTypes, setDigitalAbuseTypes] = useState<string[]>([]);
-  const [perpetrator,       setPerpetrator]       = useState<string[]>([]);
+  const [genderIdentity,      setGenderIdentity]      = useState<string[]>([]);
+  const [disabilityStatus,    setDisabilityStatus]    = useState<string[]>([]);
+  const [violenceTypes,       setViolenceTypes]       = useState<string[]>([]);
+  const [digitalAbuseTypes,   setDigitalAbuseTypes]   = useState<string[]>([]);
+  const [perpetrator,         setPerpetrator]         = useState<string[]>([]);
   const [contributingFactors, setContributingFactors] = useState<string[]>([]);
-  const [reportedTo,        setReportedTo]        = useState<string[]>([]);
-  const [servicesReceived,  setServicesReceived]  = useState<string[]>([]);
-  const [prioritySupport,   setPrioritySupport]   = useState<string[]>([]);
-  const [contactMethods,    setContactMethods]    = useState<string[]>([]);
+  const [reportedTo,          setReportedTo]          = useState<string[]>([]);
+  const [servicesReceived,    setServicesReceived]    = useState<string[]>([]);
+  const [prioritySupport,     setPrioritySupport]     = useState<string[]>([]);
+  const [contactMethods,      setContactMethods]      = useState<string[]>([]);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  const selectedDistrict     = watch("survivor.district");
-  const linkedToEnvironment  = watch("context.linkedToEnvironment");
-  const didReport            = watch("reporting.didReport");
-  const consentForContact    = watch("needs.consentForContact");
-  const subCounties          = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
-  const showDigital          = violenceTypes.includes("Digital/Online Abuse");
+  const selectedDistrict    = watch("survivor.district");
+  const linkedToEnvironment = watch("context.linkedToEnvironment");
+  const didReport           = watch("reporting.didReport");
+  const consentForContact   = watch("needs.consentForContact");
+  const subCounties         = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
+  const showDigital         = violenceTypes.includes("Digital/Online Abuse");
+
+  // Determine placeholder text based on selected contact methods
+  const contactPlaceholder = () => {
+    if (contactMethods.includes("Email") && contactMethods.includes("Phone")) return "Email address or phone number";
+    if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp")) return "Email address or WhatsApp number";
+    if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp")) return "Phone or WhatsApp number";
+    if (contactMethods.includes("Email")) return "Email address e.g. name@example.com";
+    if (contactMethods.includes("Phone")) return "Phone number e.g. +256 700 000000";
+    if (contactMethods.includes("WhatsApp")) return "WhatsApp number e.g. +256 700 000000";
+    return "Email address or phone number";
+  };
 
   const onSubmit = async (data: any) => {
     setLoading(true); setSubmitError("");
@@ -48,7 +59,12 @@ export default function ReportPage() {
       incident:  { ...data.incident, violenceTypes, digitalAbuseTypes: showDigital ? digitalAbuseTypes : [], perpetrator },
       context:   { ...data.context, contributingFactors },
       reporting: { ...data.reporting, reportedTo, servicesReceived },
-      needs:     { ...data.needs, prioritySupport, contactMethods: data.needs?.consentForContact === "Yes" ? contactMethods : [] },
+      needs:     {
+        ...data.needs,
+        prioritySupport,
+        contactMethods: data.needs?.consentForContact === "Yes" ? contactMethods : [],
+        contactDetails: data.needs?.consentForContact === "Yes" ? data.needs?.contactDetails : "",
+      },
       reflection: data.reflection || {},
     };
     try {
@@ -139,6 +155,7 @@ export default function ReportPage() {
         {step === 2 && (
           <div className="form-section animate-[slideUp_0.4s_ease-out]">
             <h3 className="form-section-title">Section 3: Context & Contributing Factors</h3>
+            <p className="form-section-subtitle">Select everything that applies to your experience.</p>
             <RadioGroup label="Was the violence related to your sex, sexual orientation, or gender identity?" name="context.linkedToSOGI" options={["Yes","No","Not sure"]} register={register} optional />
             <RadioGroup label="Was the violence linked to environmental or livelihood factors?" name="context.linkedToEnvironment" options={["Yes","No","Not sure"]} register={register} optional />
             {linkedToEnvironment === "Yes" && (
@@ -153,6 +170,7 @@ export default function ReportPage() {
         {step === 3 && (
           <div className="form-section animate-[slideUp_0.4s_ease-out]">
             <h3 className="form-section-title">Section 4: Reporting & Response</h3>
+            <p className="form-section-subtitle">Select everything that applies to your experience.</p>
             <RadioGroup label="Did you report this incident?" name="reporting.didReport" options={["Yes","No"]} register={register} optional />
             {didReport === "Yes" && (
               <>
@@ -171,12 +189,38 @@ export default function ReportPage() {
         {step === 4 && (
           <div className="form-section animate-[slideUp_0.4s_ease-out]">
             <h3 className="form-section-title">Section 5: Current Needs</h3>
+            <p className="form-section-subtitle">Select everything that applies to your experience.</p>
             <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={setPrioritySupport} optional />
             {prioritySupport.includes("Other") && <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />}
             <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency","High","Medium","Low"]} register={register} optional />
             <RadioGroup label="Consent for contact" name="needs.consentForContact" options={["Yes","No"]} register={register} optional />
             {consentForContact === "Yes" && (
-              <CheckboxGroup label="Preferred contact method(s)" options={CONTACT_METHODS} values={contactMethods} onChange={setContactMethods} optional />
+              <div className="mt-1 space-y-4">
+                <CheckboxGroup
+                  label="Preferred contact method(s)"
+                  options={CONTACT_METHODS}
+                  values={contactMethods}
+                  onChange={setContactMethods}
+                  optional
+                />
+                {contactMethods.length > 0 && (
+                  <div className="p-4 rounded-xl border border-teal-100 bg-teal-50">
+                    <label className="form-label">
+                      Your contact details
+                      <span className="text-gray-400 font-normal ml-1">(optional)</span>
+                    </label>
+                    <p className="text-xs text-gray-400 mb-2">
+                      Only share what you feel safe sharing. This will only be used to contact you about your case.
+                    </p>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder={contactPlaceholder()}
+                      {...register("needs.contactDetails")}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}
