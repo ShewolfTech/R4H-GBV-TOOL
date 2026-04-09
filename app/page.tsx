@@ -27,9 +27,7 @@ export default function HomePage() {
 
             {/* Org mark */}
             <div className="mb-8 flex flex-col items-center gap-2">
-              <div
-                className="flex items-center justify-center overflow-hidden"
-              >
+              <div className="flex items-center justify-center overflow-hidden">
                 <Image
                   src="/logo.jpg"
                   alt="Rights 4 Her Uganda logo"
@@ -38,13 +36,12 @@ export default function HomePage() {
                   className="object-contain rounded-sm w-auto h-auto"
                 />
               </div>
-
               <p className="text-white text-sm tracking-widest uppercase font-medium">
                 Rights 4 <span className="text-red-500">Her</span> Uganda
               </p>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-5 leading-tight" style={{ fontFamily: "'Playfair Display',serif" }}>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-5 leading-tight" style={{ fontFamily: "\'Playfair Display\',serif" }}>
               You Are Not Alone
             </h1>
 
@@ -84,19 +81,26 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-
-        {/* <div className="py-4 px-6 text-center text-xs" style={{ background: "#2a0918", color: "rgba(255,255,255,0.3)" }}>
-        © {new Date().getFullYear()} Rights 4 Her Uganda · Confidential GBV Documentation Tool
-      </div> */}
       </main>
+
       <footer
-        className="py-4 px-6 text-center text-xs mt-auto"
-        style={{
-          background: "#000",
-          color: "rgba(255, 255, 255, 0.6)"
-        }}
+        className="py-4 px-6 mt-auto"
+        style={{ background: "#000", color: "rgba(255,255,255,0.6)" }}
       >
-        © {new Date().getFullYear()} Rights 4 Her Uganda · Confidential GBV Documentation Tool
+        <div className="flex items-center justify-between max-w-md mx-auto">
+          <span className="text-xs">
+            © {new Date().getFullYear()} Rights 4 Her Uganda · Confidential GBV Documentation Tool
+          </span>
+          <Link
+            href="/admin"
+            title="Staff login"
+            className="text-white/20 hover:text-white/60 transition-colors duration-200 ml-4 flex-shrink-0"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </Link>
+        </div>
       </footer>
     </div>
   );
