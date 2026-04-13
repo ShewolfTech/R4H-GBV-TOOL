@@ -18,9 +18,15 @@ const SECTIONS = [
 
 export default function ReportPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [step, setStep]               = useState(0);
+  const [loading, setLoading]         = useState(false);
   const [submitError, setSubmitError] = useState("");
+
+  // Controlled state for fields that drive conditional rendering
+  const [selectedDistrict,    setSelectedDistrict]    = useState("");
+  const [linkedToEnvironment, setLinkedToEnvironment] = useState("");
+  const [didReport,           setDidReport]           = useState("");
+  const [consentForContact,   setConsentForContact]   = useState("");
 
   const [genderIdentity,      setGenderIdentity]      = useState<string[]>([]);
   const [disabilityStatus,    setDisabilityStatus]    = useState<string[]>([]);
@@ -33,21 +39,17 @@ export default function ReportPage() {
   const [prioritySupport,     setPrioritySupport]     = useState<string[]>([]);
   const [contactMethods,      setContactMethods]      = useState<string[]>([]);
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  const selectedDistrict    = watch("survivor.district");
-  const linkedToEnvironment = watch("context.linkedToEnvironment");
-  const didReport           = watch("reporting.didReport");
-  const consentForContact   = watch("needs.consentForContact");
-  const subCounties         = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
-  const showDigital         = violenceTypes.includes("Digital/Online Abuse");
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  // Determine placeholder text based on selected contact methods
+  const subCounties = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
+  const showDigital = violenceTypes.includes("Digital/Online Abuse");
+
   const contactPlaceholder = () => {
-    if (contactMethods.includes("Email") && contactMethods.includes("Phone")) return "Email address or phone number";
-    if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp")) return "Email address or WhatsApp number";
-    if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp")) return "Phone or WhatsApp number";
-    if (contactMethods.includes("Email")) return "Email address e.g. name@example.com";
-    if (contactMethods.includes("Phone")) return "Phone number e.g. +256 700 000000";
+    if (contactMethods.includes("Email") && contactMethods.includes("Phone"))     return "Email address or phone number";
+    if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp"))  return "Email address or WhatsApp number";
+    if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp"))  return "Phone or WhatsApp number";
+    if (contactMethods.includes("Email"))    return "Email address e.g. name@example.com";
+    if (contactMethods.includes("Phone"))    return "Phone number e.g. +256 700 000000";
     if (contactMethods.includes("WhatsApp")) return "WhatsApp number e.g. +256 700 000000";
     return "Email address or phone number";
   };
@@ -62,8 +64,8 @@ export default function ReportPage() {
       needs:     {
         ...data.needs,
         prioritySupport,
-        contactMethods: data.needs?.consentForContact === "Yes" ? contactMethods : [],
-        contactDetails: data.needs?.consentForContact === "Yes" ? data.needs?.contactDetails : "",
+        contactMethods: consentForContact === "Yes" ? contactMethods : [],
+        contactDetails: consentForContact === "Yes" ? data.needs?.contactDetails : "",
       },
       reflection: data.reflection || {},
     };
@@ -82,7 +84,6 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
-      {/* Sticky header */}
       <div className="sticky top-0 z-40 shadow-md" style={{ background: "#1DB954" }}>
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3 mb-2">
@@ -118,10 +119,39 @@ export default function ReportPage() {
             {disabilityStatus.includes("Other") && (
               <TextInput label="Please describe" name="survivor.disabilityOther" register={register} optional />
             )}
-            <SelectInput label="District" name="survivor.district" register={register} options={Object.keys(UGANDA_DISTRICTS)} optional />
+
+            {/* District — controlled so sub-county appears immediately */}
+            <div className="mb-4">
+              <label className="form-label">
+                District <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <select
+                className="form-select"
+                {...register("survivor.district")}
+                onChange={e => setSelectedDistrict(e.target.value)}
+              >
+                <option value="">— Select —</option>
+                {Object.keys(UGANDA_DISTRICTS).map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sub-County — appears as soon as district is picked */}
             {subCounties.length > 0 && (
-              <SelectInput label="Sub-County" name="survivor.subCounty" register={register} options={subCounties} optional />
+              <div className="mb-4 animate-[slideUp_0.3s_ease-out]">
+                <label className="form-label">
+                  Sub-County <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <select className="form-select" {...register("survivor.subCounty")}>
+                  <option value="">— Select sub-county —</option>
+                  {subCounties.map(sc => (
+                    <option key={sc} value={sc}>{sc}</option>
+                  ))}
+                </select>
+              </div>
             )}
+
             <TextInput label="Occupation / Source of Livelihood" name="survivor.occupation" register={register} optional />
           </div>
         )}
@@ -156,8 +186,31 @@ export default function ReportPage() {
           <div className="form-section animate-[slideUp_0.4s_ease-out]">
             <h3 className="form-section-title">Section 3: Context & Contributing Factors</h3>
             <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-            <RadioGroup label="Was the violence related to your sex, sexual orientation, or gender identity?" name="context.linkedToSOGI" options={["Yes","No","Not sure"]} register={register} optional />
-            <RadioGroup label="Was the violence linked to environmental or livelihood factors?" name="context.linkedToEnvironment" options={["Yes","No","Not sure"]} register={register} optional />
+            <div className="mb-4">
+              <label className="form-label">Was the violence related to your sex, sexual orientation, or gender identity? <span className="text-gray-400 font-normal">(optional)</span></label>
+              <div className="space-y-1.5 mt-1">
+                {["Yes","No","Not sure"].map(opt => (
+                  <label key={opt} className="radio-item">
+                    <input type="radio" value={opt} className="w-4 h-4" {...register("context.linkedToSOGI")} />
+                    <span className="text-sm text-gray-700">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="form-label">Was the violence linked to environmental or livelihood factors? <span className="text-gray-400 font-normal">(optional)</span></label>
+              <div className="space-y-1.5 mt-1">
+                {["Yes","No","Not sure"].map(opt => (
+                  <label key={opt} className="radio-item">
+                    <input type="radio" value={opt} className="w-4 h-4"
+                      {...register("context.linkedToEnvironment")}
+                      onChange={e => { register("context.linkedToEnvironment").onChange(e); setLinkedToEnvironment(e.target.value); }}
+                    />
+                    <span className="text-sm text-gray-700">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
             {linkedToEnvironment === "Yes" && (
               <TextareaInput label="Describe the environmental / livelihood link" name="context.environmentDescription" register={register} optional rows={3} />
             )}
@@ -171,7 +224,20 @@ export default function ReportPage() {
           <div className="form-section animate-[slideUp_0.4s_ease-out]">
             <h3 className="form-section-title">Section 4: Reporting & Response</h3>
             <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-            <RadioGroup label="Did you report this incident?" name="reporting.didReport" options={["Yes","No"]} register={register} optional />
+            <div className="mb-4">
+              <label className="form-label">Did you report this incident? <span className="text-gray-400 font-normal">(optional)</span></label>
+              <div className="space-y-1.5 mt-1">
+                {["Yes","No"].map(opt => (
+                  <label key={opt} className="radio-item">
+                    <input type="radio" value={opt} className="w-4 h-4"
+                      {...register("reporting.didReport")}
+                      onChange={e => { register("reporting.didReport").onChange(e); setDidReport(e.target.value); }}
+                    />
+                    <span className="text-sm text-gray-700">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
             {didReport === "Yes" && (
               <>
                 <CheckboxGroup label="Where did you report?" options={REPORTED_TO_OPTIONS} values={reportedTo} onChange={setReportedTo} optional />
@@ -193,31 +259,30 @@ export default function ReportPage() {
             <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={setPrioritySupport} optional />
             {prioritySupport.includes("Other") && <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />}
             <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency","High","Medium","Low"]} register={register} optional />
-            <RadioGroup label="Consent for contact" name="needs.consentForContact" options={["Yes","No"]} register={register} optional />
+            <div className="mb-4">
+              <label className="form-label">Consent for contact <span className="text-gray-400 font-normal">(optional)</span></label>
+              <div className="space-y-1.5 mt-1">
+                {["Yes","No"].map(opt => (
+                  <label key={opt} className="radio-item">
+                    <input type="radio" value={opt} className="w-4 h-4"
+                      {...register("needs.consentForContact")}
+                      onChange={e => { register("needs.consentForContact").onChange(e); setConsentForContact(e.target.value); }}
+                    />
+                    <span className="text-sm text-gray-700">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
             {consentForContact === "Yes" && (
               <div className="mt-1 space-y-4">
-                <CheckboxGroup
-                  label="Preferred contact method(s)"
-                  options={CONTACT_METHODS}
-                  values={contactMethods}
-                  onChange={setContactMethods}
-                  optional
-                />
+                <CheckboxGroup label="Preferred contact method(s)" options={CONTACT_METHODS} values={contactMethods} onChange={setContactMethods} optional />
                 {contactMethods.length > 0 && (
                   <div className="p-4 rounded-xl border border-teal-100 bg-teal-50">
                     <label className="form-label">
-                      Your contact details
-                      <span className="text-gray-400 font-normal ml-1">(optional)</span>
+                      Your contact details <span className="text-gray-400 font-normal">(optional)</span>
                     </label>
-                    <p className="text-xs text-gray-400 mb-2">
-                      Only share what you feel safe sharing. This will only be used to contact you about your case.
-                    </p>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder={contactPlaceholder()}
-                      {...register("needs.contactDetails")}
-                    />
+                    <p className="text-xs text-gray-400 mb-2">Only share what you feel safe sharing. This will only be used to contact you about your case.</p>
+                    <input type="text" className="form-input" placeholder={contactPlaceholder()} {...register("needs.contactDetails")} />
                   </div>
                 )}
               </div>
