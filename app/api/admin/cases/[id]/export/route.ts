@@ -13,10 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!incident) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const html = buildSingleCasePDF(incident);
-
-  return new NextResponse(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
-  });
+  return new NextResponse(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
 function fmt(date: any) {
@@ -47,12 +44,13 @@ function row(label: string, value: any) {
     </tr>`;
 }
 
-function section(title: string, rows: string) {
+function section(title: string, rows: string, danger = false) {
   if (!rows.trim()) return "";
+  const headerBg = danger ? "#b91c1c" : "#254252";
   return `
     <div style="margin-bottom:20px">
-      <div style="background:#254252;color:white;padding:8px 16px;border-radius:8px 8px 0 0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em">${title}</div>
-      <table style="width:100%;border-collapse:collapse;background:white;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px;overflow:hidden">${rows}</table>
+      <div style="background:${headerBg};color:white;padding:8px 16px;border-radius:8px 8px 0 0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em">${title}</div>
+      <table style="width:100%;border-collapse:collapse;background:white;border:1px solid ${danger ? "#fecaca" : "#eee"};border-top:none;border-radius:0 0 8px 8px;overflow:hidden">${rows}</table>
     </div>`;
 }
 
@@ -67,29 +65,38 @@ function buildSingleCasePDF(incident: any) {
 
   const urgencyColors: Record<string,string> = { Emergency:"#C0392B", High:"#E67E22", Medium:"#F39C12", Low:"#27AE60" };
   const statusColors:  Record<string,string> = { Open:"#2563EB", Referred:"#7C3AED", Closed:"#6B7280" };
-  const u = ned.urgencyLevel || "";
-  const s = incident.status  || "Open";
+  const u   = ned.urgencyLevel || "";
+  const s   = incident.status  || "Open";
   const now = fmtDateTime(new Date());
 
   const survivorRows = [
-    row("Preferred Name / Code",  sur.preferredName),
-    row("Age Range",               sur.ageRange),
-    row("Gender Identity",         sur.genderIdentity),
-    row("Gender (Self-describe)",  sur.genderIdentityOther),
-    row("Sexual Orientation",      sur.sexualOrientation),
-    row("Disability Status",       sur.disabilityStatus),
-    row("District",                sur.district),
-    row("Sub-County",              sur.subCounty),
-    row("Occupation",              sur.occupation),
+    row("Preferred Name / Code",   sur.preferredName),
+    row("Age Range",                sur.ageRange),
+    row("Gender Identity",          sur.genderIdentity),
+    row("Gender (Self-describe)",   sur.genderIdentityOther),
+    row("Identity / Support Note",  sur.sexualOrientation),
+    row("Disability Status",        sur.disabilityStatus),
+    row("District",                 sur.district),
+    row("Sub-County",               sur.subCounty),
+    row("Occupation",               sur.occupation),
   ].join("");
 
   const incidentRows = [
-    row("Violence Types",          inc.violenceTypes),
-    row("Digital Abuse Types",     inc.digitalAbuseTypes),
-    row("Perpetrator",             inc.perpetrator),
-    row("Date of Incident",        fmt(inc.incidentDate)),
-    row("Location",                inc.location),
+    row("Violence Types",           inc.violenceTypes),
+    row("Digital Abuse Types",      inc.digitalAbuseTypes),
+    row("Perpetrator",              inc.perpetrator),
+    row("Date of Incident",         fmt(inc.incidentDate)),
+    row("Time of Incident",         inc.incidentTime),
+    row("Location Type",            inc.locationOfIncident),
+    row("Frequency",                inc.incidentFrequency),
+    row("Impact of Violence",       inc.impactOfViolence),
     inc.description ? `<tr><td style="padding:7px 12px;font-size:11px;color:#666;font-weight:500;vertical-align:top;border-bottom:1px solid #f0f0f0">Description</td><td style="padding:7px 12px;font-size:12px;color:#1a1a1a;border-bottom:1px solid #f0f0f0;white-space:pre-wrap;line-height:1.6">${inc.description}</td></tr>` : "",
+  ].join("");
+
+  const safetyRows = [
+    row("Survivor Currently Safe?",    inc.isSurvivorSafe),
+    row("Perpetrator Has Access?",     inc.perpetratorAccess),
+    row("Urgent Support Needed",       inc.urgentSupport),
   ].join("");
 
   const contextRows = [
@@ -112,21 +119,22 @@ function buildSingleCasePDF(incident: any) {
     row("Urgency Level",       ned.urgencyLevel),
     row("Consent for Contact", ned.consentForContact),
     row("Contact Methods",     ned.contactMethods),
+    row("Contact Details",     ned.contactDetails),
   ].join("");
 
   const reflectionRows = [
     row("Community Connection", ref.communityConnection),
     row("Safety Vision",        ref.communitySafetyVision),
-    row("Healing Message",      ref.healingMessage),
+    row("Other Information",    ref.healingMessage),
   ].join("");
 
   const cmRows = [
-    row("Case Officer",           cm.caseOfficer),
-    row("Immediate Actions",      cm.immediateActions),
-    row("Referral Partners",      cm.referralPartners),
-    row("Risk Assessment",        cm.riskAssessment),
-    row("Confidentiality Level",  cm.confidentialityLevel),
-    row("Internal Notes",         cm.notes),
+    row("Case Officer",          cm.caseOfficer),
+    row("Immediate Actions",     cm.immediateActions),
+    row("Referral Partners",     cm.referralPartners),
+    row("Risk Assessment",       cm.riskAssessment),
+    row("Confidentiality Level", cm.confidentialityLevel),
+    row("Internal Notes",        cm.notes),
   ].join("");
 
   return `<!DOCTYPE html>
@@ -171,7 +179,6 @@ function buildSingleCasePDF(incident: any) {
         ${cm.confidentialityLevel ? `<span class="badge" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">Confidentiality: ${cm.confidentialityLevel}</span>` : ""}
       </div>
     </div>
-
     <div class="meta-bar">
       <div class="meta-item"><div class="meta-label">Date Recorded</div><div class="meta-value">${fmtDateTime(incident.dateRecorded)}</div></div>
       <div class="meta-item"><div class="meta-label">District</div><div class="meta-value">${sur.district || "—"}</div></div>
@@ -179,19 +186,17 @@ function buildSingleCasePDF(incident: any) {
       <div class="meta-item"><div class="meta-label">Case Officer</div><div class="meta-value">${cm.caseOfficer || "Unassigned"}</div></div>
       <div class="meta-item"><div class="meta-label">Exported</div><div class="meta-value">${now}</div></div>
     </div>
-
     <div class="body">
       <div class="confidential">🔒 <strong>Confidential</strong> — Contains sensitive survivor data. Handle in accordance with Rights 4 Her Uganda data protection policies.</div>
-
       ${section("Section 1 — Survivor Information", survivorRows)}
       ${section("Section 2 — Nature of Violation", incidentRows)}
+      ${safetyRows.trim() ? section("⚠ Immediate Safety & Risk Assessment", safetyRows, true) : ""}
       ${section("Section 3 — Context & Contributing Factors", contextRows)}
       ${section("Section 4 — Reporting & Response", reportingRows)}
       ${section("Section 5 — Current Needs", needsRows)}
-      ${ref.communityConnection || ref.communitySafetyVision || ref.healingMessage ? section("Section 6 — Reflection & Healing", reflectionRows) : ""}
+      ${reflectionRows.trim() ? section("Section 6 — Reflection & Healing", reflectionRows) : ""}
       ${cmRows.trim() ? section("Section 7 — Case Management (Internal)", cmRows) : ""}
     </div>
-
     <div class="footer">
       <span>Rights 4 Her Uganda — GBV Documentation Tool</span>
       <span>CONFIDENTIAL · ${incident.caseRef} · ${now}</span>

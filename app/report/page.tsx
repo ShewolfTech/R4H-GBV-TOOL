@@ -12,7 +12,7 @@ import {
 import { TextInput, TextareaInput, SelectInput, CheckboxGroup, RadioGroup } from "@/components/form/FormFields";
 
 const SECTIONS = [
-  "Survivor Information","Nature of Violation","Context & Factors",
+  "Survivor Information","Nature of Violation & Safety","Context & Factors",
   "Reporting & Response","Current Needs","Reflection & Healing","Data Protection",
 ];
 
@@ -22,17 +22,24 @@ export default function ReportPage() {
   const [loading, setLoading]         = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Controlled state for fields that drive conditional rendering
+  // Controlled state for conditional rendering
   const [selectedDistrict,    setSelectedDistrict]    = useState("");
   const [linkedToEnvironment, setLinkedToEnvironment] = useState("");
   const [didReport,           setDidReport]           = useState("");
   const [consentForContact,   setConsentForContact]   = useState("");
+  const [locationOfIncident,  setLocationOfIncident]  = useState("");
+  const [incidentFrequency,   setIncidentFrequency]   = useState("");
+  const [isSurvivorSafe,      setIsSurvivorSafe]      = useState("");
+  const [perpetratorAccess,   setPerpetratorAccess]   = useState("");
 
+  // Multi-select state
   const [genderIdentity,      setGenderIdentity]      = useState<string[]>([]);
   const [disabilityStatus,    setDisabilityStatus]    = useState<string[]>([]);
   const [violenceTypes,       setViolenceTypes]       = useState<string[]>([]);
   const [digitalAbuseTypes,   setDigitalAbuseTypes]   = useState<string[]>([]);
   const [perpetrator,         setPerpetrator]         = useState<string[]>([]);
+  const [impactOfViolence,    setImpactOfViolence]    = useState<string[]>([]);
+  const [urgentSupport,       setUrgentSupport]       = useState<string[]>([]);
   const [contributingFactors, setContributingFactors] = useState<string[]>([]);
   const [reportedTo,          setReportedTo]          = useState<string[]>([]);
   const [servicesReceived,    setServicesReceived]    = useState<string[]>([]);
@@ -45,9 +52,9 @@ export default function ReportPage() {
   const showDigital = violenceTypes.includes("Digital/Online Abuse");
 
   const contactPlaceholder = () => {
-    if (contactMethods.includes("Email") && contactMethods.includes("Phone"))     return "Email address or phone number";
-    if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp"))  return "Email address or WhatsApp number";
-    if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp"))  return "Phone or WhatsApp number";
+    if (contactMethods.includes("Email") && contactMethods.includes("Phone"))    return "Email address or phone number";
+    if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp")) return "Email address or WhatsApp number";
+    if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp")) return "Phone or WhatsApp number";
     if (contactMethods.includes("Email"))    return "Email address e.g. name@example.com";
     if (contactMethods.includes("Phone"))    return "Phone number e.g. +256 700 000000";
     if (contactMethods.includes("WhatsApp")) return "WhatsApp number e.g. +256 700 000000";
@@ -57,11 +64,22 @@ export default function ReportPage() {
   const onSubmit = async (data: any) => {
     setLoading(true); setSubmitError("");
     const payload = {
-      survivor:  { ...data.survivor, genderIdentity, disabilityStatus },
-      incident:  { ...data.incident, violenceTypes, digitalAbuseTypes: showDigital ? digitalAbuseTypes : [], perpetrator },
+      survivor: { ...data.survivor, genderIdentity, disabilityStatus },
+      incident: {
+        ...data.incident,
+        violenceTypes,
+        digitalAbuseTypes: showDigital ? digitalAbuseTypes : [],
+        perpetrator,
+        locationOfIncident,
+        incidentFrequency,
+        impactOfViolence,
+        isSurvivorSafe,
+        perpetratorAccess,
+        urgentSupport,
+      },
       context:   { ...data.context, contributingFactors },
       reporting: { ...data.reporting, reportedTo, servicesReceived },
-      needs:     {
+      needs: {
         ...data.needs,
         prioritySupport,
         contactMethods: consentForContact === "Yes" ? contactMethods : [],
@@ -110,74 +128,176 @@ export default function ReportPage() {
             <p className="form-section-subtitle">All fields are optional — share only what you are comfortable with.</p>
             <TextInput label="Preferred Name or Case Code" name="survivor.preferredName" register={register} optional placeholder="A name or code word you choose" />
             <SelectInput label="Age Range" name="survivor.ageRange" register={register} options={AGE_RANGES} optional />
-            <CheckboxGroup label="Gender Identity" options={GENDER_OPTIONS} optional values={genderIdentity} onChange={setGenderIdentity} />
+            <CheckboxGroup label="Gender" options={GENDER_OPTIONS} optional values={genderIdentity} onChange={setGenderIdentity} />
             {genderIdentity.includes("Self-describe") && (
-              <TextInput label="Describe your gender identity" name="survivor.genderIdentityOther" register={register} optional />
+              <TextInput label="Describe your gender (self-describe)" name="survivor.genderIdentityOther" register={register} optional />
             )}
-            <TextInput label="Sexual Orientation" name="survivor.sexualOrientation" register={register} optional />
+            <TextInput label="Is there any aspect of your identity you'd like us to be aware of to better support you?" name="survivor.sexualOrientation" register={register} optional />
             <CheckboxGroup label="Disability Status" options={DISABILITY_OPTIONS} optional values={disabilityStatus} onChange={setDisabilityStatus} />
             {disabilityStatus.includes("Other") && (
               <TextInput label="Please describe" name="survivor.disabilityOther" register={register} optional />
             )}
-
-            {/* District — controlled so sub-county appears immediately */}
             <div className="mb-4">
-              <label className="form-label">
-                District <span className="text-gray-400 font-normal">(optional)</span>
-              </label>
-              <select
-                className="form-select"
-                {...register("survivor.district")}
-                onChange={e => setSelectedDistrict(e.target.value)}
-              >
+              <label className="form-label">District <span className="text-gray-400 font-normal">(optional)</span></label>
+              <select className="form-select" {...register("survivor.district")} onChange={e => setSelectedDistrict(e.target.value)}>
                 <option value="">— Select —</option>
-                {Object.keys(UGANDA_DISTRICTS).map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
+                {Object.keys(UGANDA_DISTRICTS).map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
-
-            {/* Sub-County — appears as soon as district is picked */}
             {subCounties.length > 0 && (
               <div className="mb-4 animate-[slideUp_0.3s_ease-out]">
-                <label className="form-label">
-                  Sub-County <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
+                <label className="form-label">Sub-County <span className="text-gray-400 font-normal">(optional)</span></label>
                 <select className="form-select" {...register("survivor.subCounty")}>
                   <option value="">— Select sub-county —</option>
-                  {subCounties.map(sc => (
-                    <option key={sc} value={sc}>{sc}</option>
-                  ))}
+                  {subCounties.map(sc => <option key={sc} value={sc}>{sc}</option>)}
                 </select>
               </div>
             )}
-
             <TextInput label="Occupation / Source of Livelihood" name="survivor.occupation" register={register} optional />
           </div>
         )}
 
-        {/* STEP 1 — Nature of Violation */}
+        {/* STEP 1 — Nature of Violation & Safety */}
         {step === 1 && (
-          <div className="form-section animate-[slideUp_0.4s_ease-out]">
-            <h3 className="form-section-title">Section 2: Nature of Violation</h3>
-            <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-            <CheckboxGroup label="Type(s) of Violence Experienced" options={VIOLENCE_TYPES} values={violenceTypes} onChange={setViolenceTypes} optional />
-            {showDigital && (
-              <div className="mt-2 p-4 rounded-xl bg-purple-50 border border-purple-100">
-                <CheckboxGroup label="Digital Abuse Types" options={DIGITAL_ABUSE_TYPES} values={digitalAbuseTypes} onChange={setDigitalAbuseTypes} optional />
-                {digitalAbuseTypes.includes("Other") && <TextInput label="Describe other digital abuse" name="incident.digitalAbuseOther" register={register} optional />}
-              </div>
-            )}
-            {violenceTypes.includes("Other") && <TextInput label="Describe other violence type" name="incident.violenceOther" register={register} optional />}
-            <CheckboxGroup label="Perpetrator" options={PERPETRATOR_OPTIONS} values={perpetrator} onChange={setPerpetrator} optional />
-            {perpetrator.includes("Other") && <TextInput label="Describe perpetrator" name="incident.perpetratorOther" register={register} optional />}
-            <div className="mb-4">
-              <label className="form-label">Date / Time of Incident <span className="text-gray-400 font-normal">(optional)</span></label>
-              <input type="date" className="form-input" {...register("incident.incidentDate")} />
+          <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
+
+            {/* Violence Types */}
+            <div className="form-section">
+              <h3 className="form-section-title">Section 2: Nature of Violation</h3>
+              <p className="form-section-subtitle">Select everything that applies to your experience.</p>
+              <CheckboxGroup label="Type(s) of Violence Experienced" options={VIOLENCE_TYPES} values={violenceTypes} onChange={setViolenceTypes} optional />
+              {showDigital && (
+                <div className="mt-2 p-4 rounded-xl bg-purple-50 border border-purple-100">
+                  <CheckboxGroup label="Digital Abuse Types" options={DIGITAL_ABUSE_TYPES} values={digitalAbuseTypes} onChange={setDigitalAbuseTypes} optional />
+                  {digitalAbuseTypes.includes("Other") && (
+                    <TextInput label="Describe other digital abuse" name="incident.digitalAbuseOther" register={register} optional />
+                  )}
+                </div>
+              )}
+              {violenceTypes.includes("Other") && (
+                <TextInput label="Describe other violence type" name="incident.violenceOther" register={register} optional />
+              )}
+              <CheckboxGroup label="Perpetrator" options={PERPETRATOR_OPTIONS} values={perpetrator} onChange={setPerpetrator} optional />
+              {perpetrator.includes("Other") && (
+                <TextInput label="Describe perpetrator" name="incident.perpetratorOther" register={register} optional />
+              )}
             </div>
-            <TextInput label="Location of Incident" name="incident.location" register={register} optional placeholder="Village, town, or general area" />
-            <TextareaInput label="Detailed Description of Incident" name="incident.description" register={register} optional rows={5}
-              placeholder="Describe what happened in your own words. Share only what you feel comfortable sharing." />
+
+            {/* Incident Details */}
+            <div className="form-section">
+              <h3 className="form-section-title">Incident Details</h3>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="form-label">Date of Incident <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input type="date" className="form-input" {...register("incident.incidentDate")} />
+                </div>
+                <div>
+                  <label className="form-label">Time of Incident <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input type="time" className="form-input" {...register("incident.incidentTime")} />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="form-label">Location of Incident <span className="text-gray-400 font-normal">(optional)</span></label>
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  {["Home","Workplace","School","Public space","Online","Shelter / camp","Other"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4" checked={locationOfIncident === opt} onChange={() => setLocationOfIncident(opt)} />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+                {locationOfIncident === "Other" && (
+                  <div className="mt-2">
+                    <input type="text" className="form-input" placeholder="Describe location..." {...register("incident.locationOther")} />
+                  </div>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="form-label">Was this a one-time or repeated incident? <span className="text-gray-400 font-normal">(optional)</span></label>
+                <div className="space-y-1.5 mt-1">
+                  {["One-time","Repeated / ongoing"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4" checked={incidentFrequency === opt} onChange={() => setIncidentFrequency(opt)} />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <TextareaInput label="Detailed Description of Incident" name="incident.description" register={register} optional rows={5}
+                placeholder="Describe what happened in your own words. Share only what you feel comfortable sharing." />
+            </div>
+
+            {/* Impact of Violence */}
+            <div className="form-section">
+              <h3 className="form-section-title">Impact of the Violence</h3>
+              <p className="form-section-subtitle">Select all that apply.</p>
+              <CheckboxGroup
+                label=""
+                options={[
+                  "Physical injury",
+                  "Emotional / mental distress",
+                  "Loss of income / livelihood",
+                  "Displacement / homelessness",
+                  "Social exclusion / stigma",
+                  "Interrupted education",
+                  "Health complications",
+                  "Fear for safety",
+                  "Other",
+                ]}
+                values={impactOfViolence}
+                onChange={setImpactOfViolence}
+                optional
+              />
+              {impactOfViolence.includes("Other") && (
+                <TextInput label="Describe other impact" name="incident.impactOther" register={register} optional />
+              )}
+            </div>
+
+            {/* Immediate Safety */}
+            <div className="form-section" style={{ borderColor: "#fecaca", borderWidth: "1.5px" }}>
+              <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Safety & Risk Assessment</h3>
+              <p className="form-section-subtitle">This helps us prioritise urgent support for you.</p>
+              <div className="mb-4">
+                <label className="form-label">Is the survivor currently safe? <span className="text-gray-400 font-normal">(optional)</span></label>
+                <div className="space-y-1.5 mt-1">
+                  {["Yes","No","Not sure"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4" checked={isSurvivorSafe === opt} onChange={() => setIsSurvivorSafe(opt)} />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="form-label">Does the perpetrator still have access to or is nearby the survivor? <span className="text-gray-400 font-normal">(optional)</span></label>
+                <div className="space-y-1.5 mt-1">
+                  {["Yes","No"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4" checked={perpetratorAccess === opt} onChange={() => setPerpetratorAccess(opt)} />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <CheckboxGroup
+                label="Urgent support needed"
+                options={[
+                  "Medical care",
+                  "Safe shelter",
+                  "Legal support",
+                  "Psychosocial support",
+                  "Emergency relocation",
+                  "Other",
+                ]}
+                values={urgentSupport}
+                onChange={setUrgentSupport}
+                optional
+              />
+              {urgentSupport.includes("Other") && (
+                <TextInput label="Describe other urgent support needed" name="incident.urgentSupportOther" register={register} optional />
+              )}
+            </div>
+
           </div>
         )}
 
@@ -187,7 +307,7 @@ export default function ReportPage() {
             <h3 className="form-section-title">Section 3: Context & Contributing Factors</h3>
             <p className="form-section-subtitle">Select everything that applies to your experience.</p>
             <div className="mb-4">
-              <label className="form-label">Was the violence related to your sex, sexual orientation, or gender identity? <span className="text-gray-400 font-normal">(optional)</span></label>
+              <label className="form-label">Was the violence related to your sex or gender? <span className="text-gray-400 font-normal">(optional)</span></label>
               <div className="space-y-1.5 mt-1">
                 {["Yes","No","Not sure"].map(opt => (
                   <label key={opt} className="radio-item">
@@ -215,7 +335,9 @@ export default function ReportPage() {
               <TextareaInput label="Describe the environmental / livelihood link" name="context.environmentDescription" register={register} optional rows={3} />
             )}
             <CheckboxGroup label="Contributing Factors (select all that apply)" options={CONTRIBUTING_FACTORS} values={contributingFactors} onChange={setContributingFactors} optional />
-            {contributingFactors.includes("Other") && <TextInput label="Other contributing factor" name="context.contributingFactorsOther" register={register} optional />}
+            {contributingFactors.includes("Other") && (
+              <TextInput label="Other contributing factor" name="context.contributingFactorsOther" register={register} optional />
+            )}
           </div>
         )}
 
@@ -241,12 +363,16 @@ export default function ReportPage() {
             {didReport === "Yes" && (
               <>
                 <CheckboxGroup label="Where did you report?" options={REPORTED_TO_OPTIONS} values={reportedTo} onChange={setReportedTo} optional />
-                {reportedTo.includes("Other") && <TextInput label="Other reporting body" name="reporting.reportedToOther" register={register} optional />}
+                {reportedTo.includes("Other") && (
+                  <TextInput label="Other reporting body" name="reporting.reportedToOther" register={register} optional />
+                )}
                 <TextareaInput label="Outcome of the report" name="reporting.reportOutcome" register={register} optional rows={3} placeholder="What happened after you reported?" />
               </>
             )}
             <CheckboxGroup label="Support services received" options={SUPPORT_SERVICES} values={servicesReceived} onChange={setServicesReceived} optional />
-            {servicesReceived.includes("Other") && <TextInput label="Other service" name="reporting.servicesOther" register={register} optional />}
+            {servicesReceived.includes("Other") && (
+              <TextInput label="Other service" name="reporting.servicesOther" register={register} optional />
+            )}
             <TextareaInput label="Barriers to accessing support" name="reporting.barriers" register={register} optional rows={3} placeholder="What made it difficult to get help?" />
           </div>
         )}
@@ -257,7 +383,9 @@ export default function ReportPage() {
             <h3 className="form-section-title">Section 5: Current Needs</h3>
             <p className="form-section-subtitle">Select everything that applies to your experience.</p>
             <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={setPrioritySupport} optional />
-            {prioritySupport.includes("Other") && <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />}
+            {prioritySupport.includes("Other") && (
+              <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
+            )}
             <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency","High","Medium","Low"]} register={register} optional />
             <div className="mb-4">
               <label className="form-label">Consent for contact <span className="text-gray-400 font-normal">(optional)</span></label>
@@ -278,9 +406,7 @@ export default function ReportPage() {
                 <CheckboxGroup label="Preferred contact method(s)" options={CONTACT_METHODS} values={contactMethods} onChange={setContactMethods} optional />
                 {contactMethods.length > 0 && (
                   <div className="p-4 rounded-xl border border-teal-100 bg-teal-50">
-                    <label className="form-label">
-                      Your contact details <span className="text-gray-400 font-normal">(optional)</span>
-                    </label>
+                    <label className="form-label">Your contact details <span className="text-gray-400 font-normal">(optional)</span></label>
                     <p className="text-xs text-gray-400 mb-2">Only share what you feel safe sharing. This will only be used to contact you about your case.</p>
                     <input type="text" className="form-input" placeholder={contactPlaceholder()} {...register("needs.contactDetails")} />
                   </div>
@@ -296,8 +422,8 @@ export default function ReportPage() {
             <h3 className="form-section-title">Section 6: Reflection & Healing</h3>
             <p className="form-section-subtitle">This section is entirely voluntary. Share only what feels right.</p>
             <TextareaInput label="How has this experience affected your connection with the community or environment?" name="reflection.communityConnection" register={register} optional rows={4} />
-            <TextareaInput label="What would make your community safer for women and queer persons?" name="reflection.communitySafetyVision" register={register} optional rows={4} />
-            <TextareaInput label="A message of healing or resilience (for yourself or others)" name="reflection.healingMessage" register={register} optional rows={4} placeholder="A word of strength, hope, or healing..." />
+            <TextareaInput label="What would make your community safer for women in their diversity?" name="reflection.communitySafetyVision" register={register} optional rows={4} />
+            <TextareaInput label="Is there any other information or message you would like to share?" name="reflection.healingMessage" register={register} optional rows={4} placeholder="Any other info relevant to this incident..." />
           </div>
         )}
 

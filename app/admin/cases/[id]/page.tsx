@@ -16,10 +16,10 @@ function InfoRow({ label, value }: { label: string; value?: any }) {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, danger }: { title: string; children: React.ReactNode; danger?: boolean }) {
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-      <h2 className="text-base font-semibold text-gray-800 mb-4" style={{ fontFamily: "'Playfair Display',serif" }}>{title}</h2>
+    <div className="bg-white rounded-xl p-5 border shadow-sm" style={{ borderColor: danger ? "#fecaca" : "#f3f4f6", borderWidth: danger ? "1.5px" : "1px" }}>
+      <h2 className="text-base font-semibold mb-4" style={{ fontFamily: "'Playfair Display',serif", color: danger ? "#b91c1c" : "#1f2937" }}>{title}</h2>
       <dl>{children}</dl>
     </div>
   );
@@ -27,8 +27,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function CaseDetail() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const { id } = useParams() as { id: string };
+  const router  = useRouter();
+  const { id }  = useParams() as { id: string };
 
   const [incident,  setIncident]  = useState<any>(null);
   const [loading,   setLoading]   = useState(true);
@@ -115,7 +115,6 @@ export default function CaseDetail() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-400 hidden sm:block">Recorded {format(new Date(incident.dateRecorded), "dd MMM yyyy, HH:mm")}</span>
-            {/* Export PDF button */}
             <button onClick={handleExport} disabled={exporting}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
               style={{ background: "linear-gradient(135deg,#254252,#7bdcb5)" }}>
@@ -133,14 +132,16 @@ export default function CaseDetail() {
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-5">
+
         {/* Left — submission data */}
         <div className="lg:col-span-2 space-y-4">
+
           <Section title="Survivor Information">
             <InfoRow label="Preferred Name / Code" value={sur.preferredName} />
             <InfoRow label="Age Range"              value={sur.ageRange} />
             <InfoRow label="Gender Identity"        value={sur.genderIdentity} />
             <InfoRow label="Gender (Self-describe)" value={sur.genderIdentityOther} />
-            <InfoRow label="Sexual Orientation"     value={sur.sexualOrientation} />
+            <InfoRow label="Identity / Support Note" value={sur.sexualOrientation} />
             <InfoRow label="Disability Status"      value={sur.disabilityStatus} />
             <InfoRow label="District"               value={sur.district} />
             <InfoRow label="Sub-County"             value={sur.subCounty} />
@@ -152,13 +153,22 @@ export default function CaseDetail() {
             <InfoRow label="Digital Abuse Types" value={inc.digitalAbuseTypes} />
             <InfoRow label="Perpetrator"         value={inc.perpetrator} />
             <InfoRow label="Date of Incident"    value={inc.incidentDate ? format(new Date(inc.incidentDate), "dd MMM yyyy") : null} />
-            <InfoRow label="Location"            value={inc.location} />
+            <InfoRow label="Time of Incident"    value={inc.incidentTime} />
+            <InfoRow label="Location Type"       value={inc.locationOfIncident} />
+            <InfoRow label="Frequency"           value={inc.incidentFrequency} />
+            <InfoRow label="Impact of Violence"  value={inc.impactOfViolence} />
             {inc.description && (
               <div className="mt-3 p-4 rounded-lg bg-gray-50 border border-gray-100">
                 <p className="text-xs text-gray-400 font-medium mb-1">Description</p>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{inc.description}</p>
               </div>
             )}
+          </Section>
+
+          <Section title="⚠ Immediate Safety & Risk" danger>
+            <InfoRow label="Survivor Currently Safe?"      value={inc.isSurvivorSafe} />
+            <InfoRow label="Perpetrator Has Access?"       value={inc.perpetratorAccess} />
+            <InfoRow label="Urgent Support Needed"         value={inc.urgentSupport} />
           </Section>
 
           <Section title="Context & Contributing Factors">
@@ -188,7 +198,7 @@ export default function CaseDetail() {
             <Section title="Reflection & Healing">
               <InfoRow label="Community Connection" value={ref.communityConnection} />
               <InfoRow label="Safety Vision"        value={ref.communitySafetyVision} />
-              <InfoRow label="Healing Message"      value={ref.healingMessage} />
+              <InfoRow label="Other Information"    value={ref.healingMessage} />
             </Section>
           )}
         </div>
@@ -204,7 +214,7 @@ export default function CaseDetail() {
             </select>
           </div>
 
-          <div className="bg-white rounded-xl p-5 border border-primary-100 shadow-sm" style={{ borderColor: "#f9a8d4" }}>
+          <div className="bg-white rounded-xl p-5 border shadow-sm" style={{ borderColor: "#f9a8d4" }}>
             <h2 className="text-base font-semibold text-gray-800 mb-1" style={{ fontFamily: "'Playfair Display',serif" }}>Section 6: Case Management</h2>
             <p className="text-xs text-gray-400 mb-4">Staff only — fill in after reviewing the submission.</p>
             <div className="space-y-4">
