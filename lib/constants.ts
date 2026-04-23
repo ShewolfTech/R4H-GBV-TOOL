@@ -153,8 +153,8 @@ export const PERPETRATOR_OPTIONS = [
   "Other"
 ];
 export const CONTRIBUTING_FACTORS = ["Gender inequality", "Economic dependency", "Harmful norms", "Weak justice systems", "Climate/environmental stress", "Other"];
-export const REPORTED_TO_OPTIONS = ["Local leader", "Police", "Health facility", "NGO/CBO", "Safe shelter", "Other"];
-export const SUPPORT_SERVICES = ["Medical", "Psychosocial", "Legal aid", "Safe shelter", "Livelihood support", "None", "Other"];
+export const REPORTED_TO_OPTIONS = ["Local Council", "Police", "Religious leader", "Employer", "NGO/CBO", "Other"];
+export const SUPPORT_SERVICES = ["Medical Referral", "Psychosocial counseling", "Legal aid", "Shelter Support", "Economic support", "Case follow-up scheduled", "None", "Other"];
 export const PRIORITY_SUPPORT = ["Legal", "Psychosocial", "Medical", "Safe shelter", "Financial/livelihood", "Advocacy", "Other"];
 export const CONTACT_METHODS = ["Phone", "Email", "WhatsApp"];
 export const RISK_ASSESSMENT_OPTIONS = ["Ongoing danger", "Medical emergency", "Child survivor", "State actor involved", "High digital risk"];

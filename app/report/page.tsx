@@ -6,57 +6,115 @@ import Link from "next/link";
 import {
   AGE_RANGES, GENDER_OPTIONS, DISABILITY_OPTIONS, UGANDA_DISTRICTS,
   VIOLENCE_TYPES, DIGITAL_ABUSE_TYPES, PERPETRATOR_OPTIONS,
-  CONTRIBUTING_FACTORS, REPORTED_TO_OPTIONS, SUPPORT_SERVICES,
-  PRIORITY_SUPPORT, CONTACT_METHODS,
+  CONTACT_METHODS, SUPPORT_SERVICES, REPORTED_TO_OPTIONS, PRIORITY_SUPPORT,
 } from "@/lib/constants";
 import { TextInput, TextareaInput, SelectInput, CheckboxGroup, RadioGroup } from "@/components/form/FormFields";
 
 const SECTIONS = [
-  "Survivor Information","Nature of Violation & Safety","Context & Factors",
-  "Reporting & Response","Current Needs","Reflection & Healing","Data Protection",
+  "Survivor Information", "Nature of Violation & Safety", "Context & Factors",
+  "Reporting & Response", "Current Needs", "Reflection & Healing", "Data Protection",
+];
+
+const IDENTITY_FACTORS = [
+  "Gender (being a woman, man, or gender-diverse person)",
+  "Gender identity (e.g. non-binary)",
+  "Expression or appearance (how you dress, speak, or present yourself)",
+  "Perceived identity (assumptions made about you)",
+  "Community stigma or discrimination",
+  "Laws or policies affecting certain identities",
+  "Other",
+];
+
+const ENVIRONMENTAL_FACTORS = [
+  "Loss of income or livelihood",
+  "Resource scarcity (e.g., water, land, food)",
+  "Displacement (due to floods, drought, evictions, disasters)",
+  "Increased household stress due to economic hardship",
+  "Conflict over land or natural resources",
+  "Unsafe migration or relocation",
+  "Living/working in high-risk environments (e.g., informal settlements, fishing communities)",
+  "Climate-related disaster (floods, drought, landslides, etc.)",
+  "Exclusion from climate or livelihood support programs",
+  "Other",
+];
+
+const CONTRIBUTING_FACTORS = [
+  "Gender inequality and power imbalances",
+  "Economic dependency or lack of financial independence",
+  "Poverty and unemployment",
+  "Harmful cultural, religious, or social norms",
+  "Family or community pressure",
+  "Substance abuse (alcohol/drugs)",
+  "Weak legal and justice systems",
+  "Lack of access to justice or legal protection",
+  "Discrimination or stigma (e.g., based on gender, sexuality, disability, HIV status)",
+  "Political instability or conflict",
+  "Climate and environmental stress (e.g., drought, floods, resource scarcity)",
+  "Housing insecurity or unsafe living conditions",
+  "Limited access to education or information",
+  "Digital exposure or online vulnerability",
+  "Isolation or lack of social support",
+  "Other",
+];
+
+const PRIMARY_DRIVERS = [
+  "Gender-based discrimination",
+  "Economic stress",
+  "Environmental / climate-related stress",
+  "Social / cultural norms",
+  "Legal / policy environment",
+  "Multiple factors combined",
+  "Not sure",
+  "Other",
 ];
 
 export default function ReportPage() {
   const router = useRouter();
-  const [step, setStep]               = useState(0);
-  const [loading, setLoading]         = useState(false);
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
   // Controlled state for conditional rendering
-  const [selectedDistrict,    setSelectedDistrict]    = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [linkedToEnvironment, setLinkedToEnvironment] = useState("");
-  const [didReport,           setDidReport]           = useState("");
-  const [consentForContact,   setConsentForContact]   = useState("");
-  const [locationOfIncident,  setLocationOfIncident]  = useState("");
-  const [incidentFrequency,   setIncidentFrequency]   = useState("");
-  const [isSurvivorSafe,      setIsSurvivorSafe]      = useState("");
-  const [perpetratorAccess,   setPerpetratorAccess]   = useState("");
+  const [linkedToSOGI, setLinkedToSOGI] = useState("");
+  const [didReport, setDidReport] = useState("");
+  const [consentForContact, setConsentForContact] = useState("");
+  const [locationOfIncident, setLocationOfIncident] = useState("");
+  const [incidentFrequency, setIncidentFrequency] = useState("");
+  const [isSurvivorSafe, setIsSurvivorSafe] = useState("");
+  const [perpetratorAccess, setPerpetratorAccess] = useState("");
+  const [primaryDriver, setPrimaryDriver] = useState("");
 
   // Multi-select state
-  const [genderIdentity,      setGenderIdentity]      = useState<string[]>([]);
-  const [disabilityStatus,    setDisabilityStatus]    = useState<string[]>([]);
-  const [violenceTypes,       setViolenceTypes]       = useState<string[]>([]);
-  const [digitalAbuseTypes,   setDigitalAbuseTypes]   = useState<string[]>([]);
-  const [perpetrator,         setPerpetrator]         = useState<string[]>([]);
-  const [impactOfViolence,    setImpactOfViolence]    = useState<string[]>([]);
-  const [urgentSupport,       setUrgentSupport]       = useState<string[]>([]);
+  const [genderIdentity, setGenderIdentity] = useState<string[]>([]);
+  const [disabilityStatus, setDisabilityStatus] = useState<string[]>([]);
+  const [violenceTypes, setViolenceTypes] = useState<string[]>([]);
+  const [digitalAbuseTypes, setDigitalAbuseTypes] = useState<string[]>([]);
+  const [perpetrator, setPerpetrator] = useState<string[]>([]);
+  const [impactOfViolence, setImpactOfViolence] = useState<string[]>([]);
+  const [urgentSupport, setUrgentSupport] = useState<string[]>([]);
+  const [identityFactors, setIdentityFactors] = useState<string[]>([]);
+  const [environmentFactors, setEnvironmentFactors] = useState<string[]>([]);
   const [contributingFactors, setContributingFactors] = useState<string[]>([]);
-  const [reportedTo,          setReportedTo]          = useState<string[]>([]);
-  const [servicesReceived,    setServicesReceived]    = useState<string[]>([]);
-  const [prioritySupport,     setPrioritySupport]     = useState<string[]>([]);
-  const [contactMethods,      setContactMethods]      = useState<string[]>([]);
+  const [reportedTo, setReportedTo] = useState<string[]>([]);
+  const [servicesReceived, setServicesReceived] = useState<string[]>([]);
+  const [prioritySupport, setPrioritySupport] = useState<string[]>([]);
+  const [contactMethods, setContactMethods] = useState<string[]>([]);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const subCounties = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
   const showDigital = violenceTypes.includes("Digital/Online Abuse");
+  const showIdentityFactors = linkedToSOGI === "Yes" || linkedToSOGI === "Not sure";
+  const showEnvFactors = linkedToEnvironment === "Yes" || linkedToEnvironment === "Not sure";
 
   const contactPlaceholder = () => {
-    if (contactMethods.includes("Email") && contactMethods.includes("Phone"))    return "Email address or phone number";
+    if (contactMethods.includes("Email") && contactMethods.includes("Phone")) return "Email address or phone number";
     if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp")) return "Email address or WhatsApp number";
     if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp")) return "Phone or WhatsApp number";
-    if (contactMethods.includes("Email"))    return "Email address e.g. name@example.com";
-    if (contactMethods.includes("Phone"))    return "Phone number e.g. +256 700 000000";
+    if (contactMethods.includes("Email")) return "Email address e.g. name@example.com";
+    if (contactMethods.includes("Phone")) return "Phone number e.g. +256 700 000000";
     if (contactMethods.includes("WhatsApp")) return "WhatsApp number e.g. +256 700 000000";
     return "Email address or phone number";
   };
@@ -77,7 +135,15 @@ export default function ReportPage() {
         perpetratorAccess,
         urgentSupport,
       },
-      context:   { ...data.context, contributingFactors },
+      context: {
+        ...data.context,
+        linkedToSOGI,
+        identityFactors,
+        linkedToEnvironment,
+        environmentFactors,
+        contributingFactors,
+        primaryDriver,
+      },
       reporting: { ...data.reporting, reportedTo, servicesReceived },
       needs: {
         ...data.needs,
@@ -107,7 +173,7 @@ export default function ReportPage() {
           <div className="flex items-center gap-3 mb-2">
             <Link href="/" className="text-white/70 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </Link>
             <div className="flex-1 min-w-0">
@@ -161,7 +227,6 @@ export default function ReportPage() {
         {step === 1 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
 
-            {/* Violence Types */}
             <div className="form-section">
               <h3 className="form-section-title">Section 2: Nature of Violation</h3>
               <p className="form-section-subtitle">Select everything that applies to your experience.</p>
@@ -183,7 +248,6 @@ export default function ReportPage() {
               )}
             </div>
 
-            {/* Incident Details */}
             <div className="form-section">
               <h3 className="form-section-title">Incident Details</h3>
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -199,7 +263,7 @@ export default function ReportPage() {
               <div className="mb-4">
                 <label className="form-label">Location of Incident <span className="text-gray-400 font-normal">(optional)</span></label>
                 <div className="grid grid-cols-2 gap-2 mt-1">
-                  {["Home","Workplace","School","Public space","Online","Shelter / camp","Other"].map(opt => (
+                  {["Home", "Workplace", "School", "Public space", "Online", "Shelter / camp", "Other"].map(opt => (
                     <label key={opt} className="radio-item">
                       <input type="radio" value={opt} className="w-4 h-4" checked={locationOfIncident === opt} onChange={() => setLocationOfIncident(opt)} />
                       <span className="text-sm text-gray-700">{opt}</span>
@@ -215,7 +279,7 @@ export default function ReportPage() {
               <div className="mb-4">
                 <label className="form-label">Was this a one-time or repeated incident? <span className="text-gray-400 font-normal">(optional)</span></label>
                 <div className="space-y-1.5 mt-1">
-                  {["One-time","Repeated / ongoing"].map(opt => (
+                  {["One-time", "Repeated / ongoing"].map(opt => (
                     <label key={opt} className="radio-item">
                       <input type="radio" value={opt} className="w-4 h-4" checked={incidentFrequency === opt} onChange={() => setIncidentFrequency(opt)} />
                       <span className="text-sm text-gray-700">{opt}</span>
@@ -227,23 +291,12 @@ export default function ReportPage() {
                 placeholder="Describe what happened in your own words. Share only what you feel comfortable sharing." />
             </div>
 
-            {/* Impact of Violence */}
             <div className="form-section">
               <h3 className="form-section-title">Impact of the Violence</h3>
               <p className="form-section-subtitle">Select all that apply.</p>
               <CheckboxGroup
                 label=""
-                options={[
-                  "Physical injury",
-                  "Emotional / mental distress",
-                  "Loss of income / livelihood",
-                  "Displacement / homelessness",
-                  "Social exclusion / stigma",
-                  "Interrupted education",
-                  "Health complications",
-                  "Fear for safety",
-                  "Other",
-                ]}
+                options={["Physical injury", "Emotional / mental distress", "Loss of income / livelihood", "Displacement / homelessness", "Social exclusion / stigma", "Interrupted education", "Health complications", "Fear for safety", "Other"]}
                 values={impactOfViolence}
                 onChange={setImpactOfViolence}
                 optional
@@ -253,14 +306,13 @@ export default function ReportPage() {
               )}
             </div>
 
-            {/* Immediate Safety */}
             <div className="form-section" style={{ borderColor: "#fecaca", borderWidth: "1.5px" }}>
               <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Safety & Risk Assessment</h3>
               <p className="form-section-subtitle">This helps us prioritise urgent support for you.</p>
               <div className="mb-4">
                 <label className="form-label">Is the survivor currently safe? <span className="text-gray-400 font-normal">(optional)</span></label>
                 <div className="space-y-1.5 mt-1">
-                  {["Yes","No","Not sure"].map(opt => (
+                  {["Yes", "No", "Not sure"].map(opt => (
                     <label key={opt} className="radio-item">
                       <input type="radio" value={opt} className="w-4 h-4" checked={isSurvivorSafe === opt} onChange={() => setIsSurvivorSafe(opt)} />
                       <span className="text-sm text-gray-700">{opt}</span>
@@ -271,7 +323,7 @@ export default function ReportPage() {
               <div className="mb-4">
                 <label className="form-label">Does the perpetrator still have access to or is nearby the survivor? <span className="text-gray-400 font-normal">(optional)</span></label>
                 <div className="space-y-1.5 mt-1">
-                  {["Yes","No"].map(opt => (
+                  {["Yes", "No"].map(opt => (
                     <label key={opt} className="radio-item">
                       <input type="radio" value={opt} className="w-4 h-4" checked={perpetratorAccess === opt} onChange={() => setPerpetratorAccess(opt)} />
                       <span className="text-sm text-gray-700">{opt}</span>
@@ -281,14 +333,7 @@ export default function ReportPage() {
               </div>
               <CheckboxGroup
                 label="Urgent support needed"
-                options={[
-                  "Medical care",
-                  "Safe shelter",
-                  "Legal support",
-                  "Psychosocial support",
-                  "Emergency relocation",
-                  "Other",
-                ]}
+                options={["Medical care", "Safe shelter", "Legal support", "Psychosocial support", "Emergency relocation", "Other"]}
                 values={urgentSupport}
                 onChange={setUrgentSupport}
                 optional
@@ -301,43 +346,116 @@ export default function ReportPage() {
           </div>
         )}
 
-        {/* STEP 2 — Context */}
+        {/* STEP 2 — Context & Contributing Factors */}
         {step === 2 && (
-          <div className="form-section animate-[slideUp_0.4s_ease-out]">
-            <h3 className="form-section-title">Section 3: Context & Contributing Factors</h3>
-            <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-            <div className="mb-4">
-              <label className="form-label">Was the violence related to your sex or gender? <span className="text-gray-400 font-normal">(optional)</span></label>
-              <div className="space-y-1.5 mt-1">
-                {["Yes","No","Not sure"].map(opt => (
-                  <label key={opt} className="radio-item">
-                    <input type="radio" value={opt} className="w-4 h-4" {...register("context.linkedToSOGI")} />
-                    <span className="text-sm text-gray-700">{opt}</span>
-                  </label>
-                ))}
+          <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
+
+            {/* Identity-Based Violence */}
+            <div className="form-section">
+              <h3 className="form-section-title">Link to Identity-Based Violence</h3>
+              <p className="form-section-subtitle">Optional — share only what you feel comfortable with.</p>
+              <div className="mb-4">
+                <label className="form-label">Do you believe the violence was related to your sex or gender identity?</label>
+                <div className="space-y-1.5 mt-1">
+                  {["Yes", "No", "Not sure"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4"
+                        checked={linkedToSOGI === opt}
+                        onChange={() => setLinkedToSOGI(opt)}
+                      />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
+              {showIdentityFactors && (
+                <div className="mt-2 p-4 rounded-xl bg-blue-50 border border-blue-100 animate-[slideUp_0.3s_ease-out]">
+                  <CheckboxGroup
+                    label="If yes or not sure, what do you think contributed? (Select all that apply)"
+                    options={IDENTITY_FACTORS}
+                    values={identityFactors}
+                    onChange={setIdentityFactors}
+                    optional
+                  />
+                  {identityFactors.includes("Other") && (
+                    <TextInput label="Please describe" name="context.identityFactorsOther" register={register} optional />
+                  )}
+                </div>
+              )}
             </div>
-            <div className="mb-4">
-              <label className="form-label">Was the violence linked to environmental or livelihood factors? <span className="text-gray-400 font-normal">(optional)</span></label>
-              <div className="space-y-1.5 mt-1">
-                {["Yes","No","Not sure"].map(opt => (
+
+            {/* Environmental / Livelihood Factors */}
+            <div className="form-section">
+              <h3 className="form-section-title">Link to Environmental / Livelihood Factors</h3>
+              <p className="form-section-subtitle">Optional.</p>
+              <div className="mb-4">
+                <label className="form-label">Do you believe the violence was linked to environmental, climate, or livelihood conditions?</label>
+                <div className="space-y-1.5 mt-1">
+                  {["Yes", "No", "Not sure"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4"
+                        checked={linkedToEnvironment === opt}
+                        onChange={() => setLinkedToEnvironment(opt)}
+                      />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {showEnvFactors && (
+                <div className="mt-2 p-4 rounded-xl bg-green-50 border border-green-100 animate-[slideUp_0.3s_ease-out]">
+                  <CheckboxGroup
+                    label="If yes or not sure, how was it linked? (Select all that apply)"
+                    options={ENVIRONMENTAL_FACTORS}
+                    values={environmentFactors}
+                    onChange={setEnvironmentFactors}
+                    optional
+                  />
+                  {environmentFactors.includes("Other") && (
+                    <TextInput label="Please describe" name="context.environmentFactorsOther" register={register} optional />
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Contributing Factors */}
+            <div className="form-section">
+              <h3 className="form-section-title">Contributing Factors</h3>
+              <p className="form-section-subtitle">Optional — select all that apply.</p>
+              <CheckboxGroup
+                label=""
+                options={CONTRIBUTING_FACTORS}
+                values={contributingFactors}
+                onChange={setContributingFactors}
+                optional
+              />
+              {contributingFactors.includes("Other") && (
+                <TextInput label="Please describe" name="context.contributingFactorsOther" register={register} optional />
+              )}
+            </div>
+
+            {/* Primary Driver */}
+            <div className="form-section" style={{ background: "#fafafa" }}>
+              <h3 className="form-section-title">Primary Driver</h3>
+              <p className="form-section-subtitle">Optional — if identifiable, select one.</p>
+              <div className="space-y-1.5">
+                {PRIMARY_DRIVERS.map(opt => (
                   <label key={opt} className="radio-item">
                     <input type="radio" value={opt} className="w-4 h-4"
-                      {...register("context.linkedToEnvironment")}
-                      onChange={e => { register("context.linkedToEnvironment").onChange(e); setLinkedToEnvironment(e.target.value); }}
+                      checked={primaryDriver === opt}
+                      onChange={() => setPrimaryDriver(opt)}
                     />
                     <span className="text-sm text-gray-700">{opt}</span>
                   </label>
                 ))}
               </div>
+              {primaryDriver === "Other" && (
+                <div className="mt-3">
+                  <TextInput label="Please describe" name="context.primaryDriverOther" register={register} optional />
+                </div>
+              )}
             </div>
-            {linkedToEnvironment === "Yes" && (
-              <TextareaInput label="Describe the environmental / livelihood link" name="context.environmentDescription" register={register} optional rows={3} />
-            )}
-            <CheckboxGroup label="Contributing Factors (select all that apply)" options={CONTRIBUTING_FACTORS} values={contributingFactors} onChange={setContributingFactors} optional />
-            {contributingFactors.includes("Other") && (
-              <TextInput label="Other contributing factor" name="context.contributingFactorsOther" register={register} optional />
-            )}
+
           </div>
         )}
 
@@ -349,7 +467,7 @@ export default function ReportPage() {
             <div className="mb-4">
               <label className="form-label">Did you report this incident? <span className="text-gray-400 font-normal">(optional)</span></label>
               <div className="space-y-1.5 mt-1">
-                {["Yes","No"].map(opt => (
+                {["Yes", "No"].map(opt => (
                   <label key={opt} className="radio-item">
                     <input type="radio" value={opt} className="w-4 h-4"
                       {...register("reporting.didReport")}
@@ -386,11 +504,11 @@ export default function ReportPage() {
             {prioritySupport.includes("Other") && (
               <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
             )}
-            <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency","High","Medium","Low"]} register={register} optional />
+            <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency", "High", "Medium", "Low"]} register={register} optional />
             <div className="mb-4">
               <label className="form-label">Consent for contact <span className="text-gray-400 font-normal">(optional)</span></label>
               <div className="space-y-1.5 mt-1">
-                {["Yes","No"].map(opt => (
+                {["Yes", "No"].map(opt => (
                   <label key={opt} className="radio-item">
                     <input type="radio" value={opt} className="w-4 h-4"
                       {...register("needs.consentForContact")}
