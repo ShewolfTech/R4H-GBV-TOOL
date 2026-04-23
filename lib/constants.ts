@@ -152,9 +152,75 @@ export const PERPETRATOR_OPTIONS = [
   "Unknown",
   "Other"
 ];
-export const CONTRIBUTING_FACTORS = ["Gender inequality", "Economic dependency", "Harmful norms", "Weak justice systems", "Climate/environmental stress", "Other"];
-export const REPORTED_TO_OPTIONS = ["Local Council", "Police", "Religious leader", "Employer", "NGO/CBO", "Other"];
+export const SECTIONS = [
+  "Survivor Information", "Nature of Violation & Safety", "Context & Factors",
+  "Reporting & Response", "Current Needs", "Reflection & Healing", "Data Protection",
+];
+
+export const IDENTITY_FACTORS = [
+  "Gender (being a woman, man, or gender-diverse person)",
+  "Gender identity (e.g. non-binary)",
+  "Expression or appearance (how you dress, speak, or present yourself)",
+  "Perceived identity (assumptions made about you)",
+  "Community stigma or discrimination",
+  "Laws or policies affecting certain identities",
+  "Other",
+];
+
+export const ENVIRONMENTAL_FACTORS = [
+  "Loss of income or livelihood",
+  "Resource scarcity (e.g., water, land, food)",
+  "Displacement (due to floods, drought, evictions, disasters)",
+  "Increased household stress due to economic hardship",
+  "Conflict over land or natural resources",
+  "Unsafe migration or relocation",
+  "Living/working in high-risk environments (e.g., informal settlements, fishing communities)",
+  "Climate-related disaster (floods, drought, landslides, etc.)",
+  "Exclusion from climate or livelihood support programs",
+  "Other",
+];
+
+export const CONTRIBUTING_FACTORS = [
+  "Gender inequality and power imbalances",
+  "Economic dependency or lack of financial independence",
+  "Poverty and unemployment",
+  "Harmful cultural, religious, or social norms",
+  "Family or community pressure",
+  "Substance abuse (alcohol/drugs)",
+  "Weak legal and justice systems",
+  "Lack of access to justice or legal protection",
+  "Discrimination or stigma (e.g., based on gender, sexuality, disability, HIV status)",
+  "Political instability or conflict",
+  "Climate and environmental stress (e.g., drought, floods, resource scarcity)",
+  "Housing insecurity or unsafe living conditions",
+  "Limited access to education or information",
+  "Digital exposure or online vulnerability",
+  "Isolation or lack of social support",
+  "Other",
+];
+
+export const PRIMARY_DRIVERS = [
+  "Gender-based discrimination",
+  "Economic stress",
+  "Environmental / climate-related stress",
+  "Social / cultural norms",
+  "Legal / policy environment",
+  "Multiple factors combined",
+  "Not sure",
+  "Other",
+];
+export const REPORTED_TO_OPTIONS = ["Local Council/community leader", "Police", "Religious/cultural leader", "Employer/Workplace", "NGO/CBO", "Health facility", "School/educational institution", "Online platform", "Other"];
 export const SUPPORT_SERVICES = ["Medical Referral", "Psychosocial counseling", "Legal aid", "Shelter Support", "Economic support", "Case follow-up scheduled", "None", "Other"];
-export const PRIORITY_SUPPORT = ["Legal", "Psychosocial", "Medical", "Safe shelter", "Financial/livelihood", "Advocacy", "Other"];
+export const PRIORITY_SUPPORT = [
+  "Emergency medical care",
+  "Psychosocial support (counseling, trauma care)",
+  "Legal assistance (advice, representation, case follow-up)",
+  "Safe shelter / temporary relocation",
+  "Protection / safety planning",
+  "Financial or livelihood support",
+  "Case management / follow-up support",
+  "Advocacy or mediation support",
+  "Documentation support (evidence, reporting)",
+  "Other"];
 export const CONTACT_METHODS = ["Phone", "Email", "WhatsApp"];
 export const RISK_ASSESSMENT_OPTIONS = ["Ongoing danger", "Medical emergency", "Child survivor", "State actor involved", "High digital risk"];

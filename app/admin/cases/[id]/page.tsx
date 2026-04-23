@@ -27,14 +27,14 @@ function Section({ title, children, danger }: { title: string; children: React.R
 
 export default function CaseDetail() {
   const { data: session, status } = useSession();
-  const router  = useRouter();
-  const { id }  = useParams() as { id: string };
+  const router = useRouter();
+  const { id } = useParams() as { id: string };
 
-  const [incident,  setIncident]  = useState<any>(null);
-  const [loading,   setLoading]   = useState(true);
-  const [saving,    setSaving]    = useState(false);
-  const [saved,     setSaved]     = useState(false);
-  const [deleting,  setDeleting]  = useState(false);
+  const [incident, setIncident] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const [caseStatus, setCaseStatus] = useState("Open");
@@ -48,7 +48,7 @@ export default function CaseDetail() {
 
   async function load() {
     setLoading(true);
-    const res  = await fetch(`/api/admin/cases/${id}`);
+    const res = await fetch(`/api/admin/cases/${id}`);
     const data = await res.json();
     if (data.incident) {
       setIncident(data.incident);
@@ -93,11 +93,11 @@ export default function CaseDetail() {
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}><p className="text-gray-400 text-sm">Loading case…</p></div>;
   if (!incident) return <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}><p className="text-gray-500">Case not found.</p></div>;
 
-  const inc = incident.incident   || {};
-  const sur = incident.survivor   || {};
-  const ctx = incident.context    || {};
-  const rep = incident.reporting  || {};
-  const ned = incident.needs      || {};
+  const inc = incident.incident || {};
+  const sur = incident.survivor || {};
+  const ctx = incident.context || {};
+  const rep = incident.reporting || {};
+  const ned = incident.needs || {};
   const ref = incident.reflection || {};
 
   return (
@@ -106,7 +106,7 @@ export default function CaseDetail() {
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/admin/dashboard" className="text-gray-400 hover:text-gray-700 transition-colors">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </Link>
             <div>
               <p className="text-xs text-gray-400">Case Detail</p>
@@ -119,7 +119,7 @@ export default function CaseDetail() {
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
               style={{ background: "linear-gradient(135deg,#254252,#7bdcb5)" }}>
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               </svg>
               {exporting ? "Opening…" : "Export PDF"}
             </button>
@@ -138,25 +138,25 @@ export default function CaseDetail() {
 
           <Section title="Survivor Information">
             <InfoRow label="Preferred Name / Code" value={sur.preferredName} />
-            <InfoRow label="Age Range"              value={sur.ageRange} />
-            <InfoRow label="Gender Identity"        value={sur.genderIdentity} />
+            <InfoRow label="Age Range" value={sur.ageRange} />
+            <InfoRow label="Gender Identity" value={sur.genderIdentity} />
             <InfoRow label="Gender (Self-describe)" value={sur.genderIdentityOther} />
             <InfoRow label="Identity / Support Note" value={sur.sexualOrientation} />
-            <InfoRow label="Disability Status"      value={sur.disabilityStatus} />
-            <InfoRow label="District"               value={sur.district} />
-            <InfoRow label="Sub-County"             value={sur.subCounty} />
-            <InfoRow label="Occupation"             value={sur.occupation} />
+            <InfoRow label="Disability Status" value={sur.disabilityStatus} />
+            <InfoRow label="District" value={sur.district} />
+            <InfoRow label="Sub-County" value={sur.subCounty} />
+            <InfoRow label="Occupation" value={sur.occupation} />
           </Section>
 
           <Section title="Nature of Violation">
-            <InfoRow label="Violence Types"      value={inc.violenceTypes} />
+            <InfoRow label="Violence Types" value={inc.violenceTypes} />
             <InfoRow label="Digital Abuse Types" value={inc.digitalAbuseTypes} />
-            <InfoRow label="Perpetrator"         value={inc.perpetrator} />
-            <InfoRow label="Date of Incident"    value={inc.incidentDate ? format(new Date(inc.incidentDate), "dd MMM yyyy") : null} />
-            <InfoRow label="Time of Incident"    value={inc.incidentTime} />
-            <InfoRow label="Location Type"       value={inc.locationOfIncident} />
-            <InfoRow label="Frequency"           value={inc.incidentFrequency} />
-            <InfoRow label="Impact of Violence"  value={inc.impactOfViolence} />
+            <InfoRow label="Perpetrator" value={inc.perpetrator} />
+            <InfoRow label="Date of Incident" value={inc.incidentDate ? format(new Date(inc.incidentDate), "dd MMM yyyy") : null} />
+            <InfoRow label="Time of Incident" value={inc.incidentTime} />
+            <InfoRow label="Location Type" value={inc.locationOfIncident} />
+            <InfoRow label="Frequency" value={inc.incidentFrequency} />
+            <InfoRow label="Impact of Violence" value={inc.impactOfViolence} />
             {inc.description && (
               <div className="mt-3 p-4 rounded-lg bg-gray-50 border border-gray-100">
                 <p className="text-xs text-gray-400 font-medium mb-1">Description</p>
@@ -166,39 +166,50 @@ export default function CaseDetail() {
           </Section>
 
           <Section title="⚠ Immediate Safety & Risk" danger>
-            <InfoRow label="Survivor Currently Safe?"      value={inc.isSurvivorSafe} />
-            <InfoRow label="Perpetrator Has Access?"       value={inc.perpetratorAccess} />
-            <InfoRow label="Urgent Support Needed"         value={inc.urgentSupport} />
+            <InfoRow label="Survivor Currently Safe?" value={inc.isSurvivorSafe} />
+            <InfoRow label="Perpetrator Has Access?" value={inc.perpetratorAccess} />
+            <InfoRow label="Urgent Support Needed" value={inc.urgentSupport} />
           </Section>
 
           <Section title="Context & Contributing Factors">
-            <InfoRow label="Linked to SOGI"            value={ctx.linkedToSOGI} />
-            <InfoRow label="Linked to Environment"     value={ctx.linkedToEnvironment} />
+            <InfoRow label="Linked to SOGI" value={ctx.linkedToSOGI} />
+            <InfoRow label="Linked to Environment" value={ctx.linkedToEnvironment} />
             <InfoRow label="Environmental Description" value={ctx.environmentDescription} />
-            <InfoRow label="Contributing Factors"      value={ctx.contributingFactors} />
+            <InfoRow label="Contributing Factors" value={ctx.contributingFactors} />
           </Section>
 
           <Section title="Reporting & Response">
-            <InfoRow label="Did Report?"       value={rep.didReport} />
-            <InfoRow label="Reported To"       value={rep.reportedTo} />
-            <InfoRow label="Report Outcome"    value={rep.reportOutcome} />
+            <InfoRow label="Did Report?" value={rep.didReport} />
+            <InfoRow label="Reported To" value={rep.reportedTo} />
+            <InfoRow label="Report Outcome" value={rep.reportOutcome} />
             <InfoRow label="Services Received" value={rep.servicesReceived} />
-            <InfoRow label="Barriers"          value={rep.barriers} />
+            <InfoRow label="Barriers" value={rep.barriers} />
           </Section>
 
           <Section title="Current Needs">
-            <InfoRow label="Priority Support"    value={ned.prioritySupport} />
-            <InfoRow label="Urgency Level"       value={ned.urgencyLevel} />
+            <InfoRow label="Priority Support" value={ned.prioritySupport} />
+            <InfoRow label="Urgency Level" value={ned.urgencyLevel} />
             <InfoRow label="Consent for Contact" value={ned.consentForContact} />
-            <InfoRow label="Contact Methods"     value={ned.contactMethods} />
-            <InfoRow label="Contact Details"     value={ned.contactDetails} />
+            <InfoRow label="Contact Methods" value={ned.contactMethods} />
+            <InfoRow label="Contact Details" value={ned.contactDetails} />
+            <InfoRow label="Immediate Risk Indicators" value={ned.immediateRisk} />
           </Section>
 
           {(ref.communityConnection || ref.communitySafetyVision || ref.healingMessage) && (
             <Section title="Reflection & Healing">
               <InfoRow label="Community Connection" value={ref.communityConnection} />
-              <InfoRow label="Safety Vision"        value={ref.communitySafetyVision} />
-              <InfoRow label="Other Information"    value={ref.healingMessage} />
+              <InfoRow label="Safety Vision" value={ref.communitySafetyVision} />
+              <InfoRow label="Other Information" value={ref.healingMessage} />
+            </Section>
+          )}
+
+          {(incident.consent?.dataCollection || incident.consent?.referralServices || incident.consent?.anonymizedAdvocacy || incident.consent?.signature) && (
+            <Section title="Consent & Confidentiality">
+              <InfoRow label="Data Collection" value={incident.consent?.dataCollection ? "Yes" : "No"} />
+              <InfoRow label="Referral Services" value={incident.consent?.referralServices ? "Yes" : "No"} />
+              <InfoRow label="Anonymized Advocacy" value={incident.consent?.anonymizedAdvocacy ? "Yes" : "No"} />
+              <InfoRow label="Signature / Initials" value={incident.consent?.signature} />
+              <InfoRow label="Consent Date" value={incident.consent?.consentDate ? format(new Date(incident.consent.consentDate), "dd MMM yyyy") : null} />
             </Section>
           )}
         </div>

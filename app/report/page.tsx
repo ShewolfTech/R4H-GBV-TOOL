@@ -7,66 +7,9 @@ import {
   AGE_RANGES, GENDER_OPTIONS, DISABILITY_OPTIONS, UGANDA_DISTRICTS,
   VIOLENCE_TYPES, DIGITAL_ABUSE_TYPES, PERPETRATOR_OPTIONS,
   CONTACT_METHODS, SUPPORT_SERVICES, REPORTED_TO_OPTIONS, PRIORITY_SUPPORT,
+  SECTIONS, IDENTITY_FACTORS, ENVIRONMENTAL_FACTORS, CONTRIBUTING_FACTORS, PRIMARY_DRIVERS,
 } from "@/lib/constants";
 import { TextInput, TextareaInput, SelectInput, CheckboxGroup, RadioGroup } from "@/components/form/FormFields";
-
-const SECTIONS = [
-  "Survivor Information", "Nature of Violation & Safety", "Context & Factors",
-  "Reporting & Response", "Current Needs", "Reflection & Healing", "Data Protection",
-];
-
-const IDENTITY_FACTORS = [
-  "Gender (being a woman, man, or gender-diverse person)",
-  "Gender identity (e.g. non-binary)",
-  "Expression or appearance (how you dress, speak, or present yourself)",
-  "Perceived identity (assumptions made about you)",
-  "Community stigma or discrimination",
-  "Laws or policies affecting certain identities",
-  "Other",
-];
-
-const ENVIRONMENTAL_FACTORS = [
-  "Loss of income or livelihood",
-  "Resource scarcity (e.g., water, land, food)",
-  "Displacement (due to floods, drought, evictions, disasters)",
-  "Increased household stress due to economic hardship",
-  "Conflict over land or natural resources",
-  "Unsafe migration or relocation",
-  "Living/working in high-risk environments (e.g., informal settlements, fishing communities)",
-  "Climate-related disaster (floods, drought, landslides, etc.)",
-  "Exclusion from climate or livelihood support programs",
-  "Other",
-];
-
-const CONTRIBUTING_FACTORS = [
-  "Gender inequality and power imbalances",
-  "Economic dependency or lack of financial independence",
-  "Poverty and unemployment",
-  "Harmful cultural, religious, or social norms",
-  "Family or community pressure",
-  "Substance abuse (alcohol/drugs)",
-  "Weak legal and justice systems",
-  "Lack of access to justice or legal protection",
-  "Discrimination or stigma (e.g., based on gender, sexuality, disability, HIV status)",
-  "Political instability or conflict",
-  "Climate and environmental stress (e.g., drought, floods, resource scarcity)",
-  "Housing insecurity or unsafe living conditions",
-  "Limited access to education or information",
-  "Digital exposure or online vulnerability",
-  "Isolation or lack of social support",
-  "Other",
-];
-
-const PRIMARY_DRIVERS = [
-  "Gender-based discrimination",
-  "Economic stress",
-  "Environmental / climate-related stress",
-  "Social / cultural norms",
-  "Legal / policy environment",
-  "Multiple factors combined",
-  "Not sure",
-  "Other",
-];
 
 export default function ReportPage() {
   const router = useRouter();
@@ -101,6 +44,7 @@ export default function ReportPage() {
   const [servicesReceived, setServicesReceived] = useState<string[]>([]);
   const [prioritySupport, setPrioritySupport] = useState<string[]>([]);
   const [contactMethods, setContactMethods] = useState<string[]>([]);
+  const [immediateRisk, setImmediateRisk] = useState<string[]>([]);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -148,10 +92,18 @@ export default function ReportPage() {
       needs: {
         ...data.needs,
         prioritySupport,
+        immediateRisk,
         contactMethods: consentForContact === "Yes" ? contactMethods : [],
         contactDetails: consentForContact === "Yes" ? data.needs?.contactDetails : "",
       },
       reflection: data.reflection || {},
+      consent: {
+        dataCollection: data.consent?.dataCollection || false,
+        referralServices: data.consent?.referralServices || false,
+        anonymizedAdvocacy: data.consent?.anonymizedAdvocacy || false,
+        signature: data.consent?.signature || "",
+        consentDate: data.consent?.consentDate || "",
+      },
     };
     try {
       const res = await fetch("/api/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -497,40 +449,63 @@ export default function ReportPage() {
 
         {/* STEP 4 — Needs */}
         {step === 4 && (
-          <div className="form-section animate-[slideUp_0.4s_ease-out]">
-            <h3 className="form-section-title">Section 5: Current Needs</h3>
-            <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-            <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={setPrioritySupport} optional />
-            {prioritySupport.includes("Other") && (
-              <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
-            )}
-            <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency", "High", "Medium", "Low"]} register={register} optional />
-            <div className="mb-4">
-              <label className="form-label">Consent for contact <span className="text-gray-400 font-normal">(optional)</span></label>
-              <div className="space-y-1.5 mt-1">
-                {["Yes", "No"].map(opt => (
-                  <label key={opt} className="radio-item">
-                    <input type="radio" value={opt} className="w-4 h-4"
-                      {...register("needs.consentForContact")}
-                      onChange={e => { register("needs.consentForContact").onChange(e); setConsentForContact(e.target.value); }}
-                    />
-                    <span className="text-sm text-gray-700">{opt}</span>
-                  </label>
-                ))}
+          <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
+
+            <div className="form-section">
+              <h3 className="form-section-title">Section 5: Current Needs</h3>
+              <p className="form-section-subtitle">Select everything that applies to your experience.</p>
+              <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={setPrioritySupport} optional />
+              {prioritySupport.includes("Other") && (
+                <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
+              )}
+              <RadioGroup label="Urgency Level" name="needs.urgencyLevel" options={["Emergency – Immediate danger or life-threatening situation", "High – Urgent support needed within 24–72 hours", "Medium – Support needed but not immediate", "Low – General support or follow-up"]} register={register} optional />
+              <div className="mb-4">
+                <label className="form-label">Consent for contact <span className="text-gray-400 font-normal">(optional)</span></label>
+                <div className="space-y-1.5 mt-1">
+                  {["Yes", "No"].map(opt => (
+                    <label key={opt} className="radio-item">
+                      <input type="radio" value={opt} className="w-4 h-4"
+                        {...register("needs.consentForContact")}
+                        onChange={e => { register("needs.consentForContact").onChange(e); setConsentForContact(e.target.value); }}
+                      />
+                      <span className="text-sm text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
+              {consentForContact === "Yes" && (
+                <div className="mt-1 space-y-4">
+                  <CheckboxGroup label="Preferred contact method(s)" options={CONTACT_METHODS} values={contactMethods} onChange={setContactMethods} optional />
+                  {contactMethods.length > 0 && (
+                    <div className="p-4 rounded-xl border border-teal-100 bg-teal-50">
+                      <label className="form-label">Your contact details <span className="text-gray-400 font-normal">(optional)</span></label>
+                      <p className="text-xs text-gray-400 mb-2">Only share what you feel safe sharing. This will only be used to contact you about your case.</p>
+                      <input type="text" className="form-input" placeholder={contactPlaceholder()} {...register("needs.contactDetails")} />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            {consentForContact === "Yes" && (
-              <div className="mt-1 space-y-4">
-                <CheckboxGroup label="Preferred contact method(s)" options={CONTACT_METHODS} values={contactMethods} onChange={setContactMethods} optional />
-                {contactMethods.length > 0 && (
-                  <div className="p-4 rounded-xl border border-teal-100 bg-teal-50">
-                    <label className="form-label">Your contact details <span className="text-gray-400 font-normal">(optional)</span></label>
-                    <p className="text-xs text-gray-400 mb-2">Only share what you feel safe sharing. This will only be used to contact you about your case.</p>
-                    <input type="text" className="form-input" placeholder={contactPlaceholder()} {...register("needs.contactDetails")} />
-                  </div>
-                )}
-              </div>
-            )}
+
+            {/* Immediate Risk Indicator */}
+            <div className="form-section" style={{ borderColor: "#fecaca", borderWidth: "1.5px" }}>
+              <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Risk Indicator</h3>
+              <p className="form-section-subtitle">Optional — select all that apply.</p>
+              <CheckboxGroup
+                label=""
+                options={[
+                  "Survivor is in immediate danger",
+                  "Perpetrator has ongoing access to survivor",
+                  "Survivor has no safe place to stay",
+                  "Survivor requires urgent medical attention",
+                  "None of the above",
+                ]}
+                values={immediateRisk}
+                onChange={setImmediateRisk}
+                optional
+              />
+            </div>
+
           </div>
         )}
 
@@ -554,12 +529,57 @@ export default function ReportPage() {
                 <p className="font-semibold text-yellow-800 mb-2">Before you submit</p>
                 <p>By submitting this form, I confirm the information provided is accurate to the best of my knowledge. I understand that <strong>Rights 4 Her Uganda</strong> will use this information strictly for advocacy, referrals, and protection support, under confidentiality and data protection policies.</p>
               </div>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" className="mt-0.5 w-5 h-5 rounded" {...register("dataConsent", { required: "You must confirm consent to submit." })} />
-                <span className="text-sm text-gray-700">I understand and consent to the above data protection statement.</span>
-              </label>
-              {errors.dataConsent && <p className="text-red-500 text-md mt-2">{errors.dataConsent.message as string}</p>}
+
+              {/* Consent and Confidentiality */}
+              <div className="mb-5">
+                <p className="form-label mb-3">Consent and Confidentiality <span className="text-red-500 font-semibold">*</span></p>
+                <div className="space-y-3">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input type="checkbox" className="mt-0.5 w-5 h-5 rounded" {...register("consent.dataCollection")} />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">Survivor consents to data collection</span>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input type="checkbox" className="mt-0.5 w-5 h-5 rounded" {...register("consent.referralServices")} />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">Survivor consents to referral services</span>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input type="checkbox" className="mt-0.5 w-5 h-5 rounded" {...register("consent.anonymizedAdvocacy")} />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">Survivor consents to anonymized data use for advocacy</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Signature and Date */}
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                <div>
+                  <label className="form-label">Signature / Initials <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. A.K."
+                    {...register("consent.signature")}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Date <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    {...register("consent.consentDate")}
+                  />
+                </div>
+              </div>
+
+              {/* General data consent */}
+              <div className="border-t border-gray-100 pt-4">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" className="mt-0.5 w-5 h-5 rounded" {...register("dataConsent", { required: "You must confirm consent to submit." })} />
+                  <span className="text-sm text-gray-700">I understand and consent to the above data protection statement.</span>
+                </label>
+                {errors.dataConsent && <p className="text-red-500 text-sm mt-2">{errors.dataConsent.message as string}</p>}
+              </div>
             </div>
+
             {submitError && (
               <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm mb-4">{submitError}</div>
             )}
