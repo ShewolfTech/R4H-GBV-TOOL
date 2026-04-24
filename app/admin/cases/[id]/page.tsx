@@ -39,7 +39,8 @@ export default function CaseDetail() {
 
   const [caseStatus, setCaseStatus] = useState("Open");
   const [cm, setCm] = useState({
-    caseOfficer: "", immediateActions: "", referralPartners: "",
+    caseOfficer: "", caseOfficerOrg: "", assignedDate: "",
+    immediateActions: "", referralPartners: "",
     riskAssessment: [] as string[], confidentialityLevel: "", notes: "",
   });
 
@@ -55,7 +56,8 @@ export default function CaseDetail() {
       setCaseStatus(data.incident.status || "Open");
       const c = data.incident.caseManagement || {};
       setCm({
-        caseOfficer: c.caseOfficer || "", immediateActions: c.immediateActions || "",
+        caseOfficer: c.caseOfficer || "", caseOfficerOrg: c.caseOfficerOrg || "",
+        assignedDate: c.assignedDate || "", immediateActions: c.immediateActions || "",
         referralPartners: c.referralPartners || "", riskAssessment: c.riskAssessment || [],
         confidentialityLevel: c.confidentialityLevel || "", notes: c.notes || "",
       });
@@ -145,6 +147,7 @@ export default function CaseDetail() {
             <InfoRow label="Disability Status" value={sur.disabilityStatus} />
             <InfoRow label="District" value={sur.district} />
             <InfoRow label="Sub-County" value={sur.subCounty} />
+            <InfoRow label="Village / Parish"       value={sur.village} />
             <InfoRow label="Occupation" value={sur.occupation} />
           </Section>
 
@@ -225,6 +228,28 @@ export default function CaseDetail() {
               <option value="Referred">Referred</option>
               <option value="Closed">Closed</option>
             </select>
+            {cm.caseOfficer && (
+              <div className="mt-3 pt-3 border-t border-gray-50 space-y-1.5">
+                {cm.caseOfficer && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-400">Officer</span>
+                    <span className="text-gray-700 font-medium">{cm.caseOfficer}</span>
+                  </div>
+                )}
+                {cm.caseOfficerOrg && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-400">Organisation</span>
+                    <span className="text-gray-700 font-medium">{cm.caseOfficerOrg}</span>
+                  </div>
+                )}
+                {cm.assignedDate && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-400">Assigned</span>
+                    <span className="text-gray-700 font-medium">{format(new Date(cm.assignedDate), "dd MMM yyyy")}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-xl p-5 border shadow-sm" style={{ borderColor: "#f9a8d4" }}>
@@ -235,6 +260,16 @@ export default function CaseDetail() {
                 <label className="form-label">Case Officer</label>
                 <input type="text" className="form-input" placeholder="Assigned officer name"
                   value={cm.caseOfficer} onChange={e => setCm(p => ({ ...p, caseOfficer: e.target.value }))} />
+              </div>
+              <div>
+                <label className="form-label">Organisation</label>
+                <input type="text" className="form-input" placeholder="Organisation the officer belongs to"
+                  value={cm.caseOfficerOrg} onChange={e => setCm(p => ({ ...p, caseOfficerOrg: e.target.value }))} />
+              </div>
+              <div>
+                <label className="form-label">Date of Intake</label>
+                <input type="date" className="form-input"
+                  value={cm.assignedDate} onChange={e => setCm(p => ({ ...p, assignedDate: e.target.value }))} />
               </div>
               <div>
                 <label className="form-label">Immediate Actions Taken</label>

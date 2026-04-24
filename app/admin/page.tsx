@@ -78,6 +78,13 @@ function LoginForm() {
               style={{ background: "linear-gradient(135deg,#7bdcb5,#000000)" }}>
               {loading ? "Signing in..." : "Sign in"}
             </button>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-xl font-semibold text-sm text-gray-700 border border-gray-300 hover:bg-gray-100 transition-all"
+            >
+              Back to Home
+            </button>
           </form>
           <p className="text-center text-xs text-gray-400 mt-5">Access restricted to authorized personnel only.</p>
         </div>
