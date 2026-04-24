@@ -46,7 +46,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-white/80 text-base leading-relaxed mb-3">
-            This is a safe, confidential, and survivor-centered space where you can share your experience of gender-based violence in your own words. Your voice matters. By speaking out, you not only open pathways to support and healing for yourself, but also contribute to the protection of others and the pursuit of justice. <br></br><br></br>You deserve to be heard, believed, and supported.
+              This is a safe, confidential, and survivor-centered space where you can share your experience of gender-based violence in your own words. Your voice matters. By speaking out, you not only open pathways to support and healing for yourself, but also contribute to the protection of others and the pursuit of justice. <br></br><br></br>You deserve to be heard, believed, and supported.
             </p>
             <p className="text-white/50 text-sm mb-8">
               All information is protected. You may remain anonymous. You are in control of what you share.
@@ -75,7 +75,7 @@ export default function HomePage() {
             <div className="mt-8 p-4 rounded-2xl border border-white/10 text-left" style={{ background: "rgba(255,255,255,0.05)" }}>
               <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-2">Emergency Helplines</p>
               <div className="space-y-1">
-              <p className="text-white/70 text-sm"><a href="tel:+256760208851" className="text-white/90 font-semibold">+256 760 208 851</a> — Rights 4 Her Uganda</p>
+                <p className="text-white/70 text-sm"><a href="tel:+256760208851" className="text-white/90 font-semibold">+256 760 208 851</a> — Rights 4 Her Uganda</p>
                 <p className="text-white/70 text-sm"><a href="tel:116" className="text-white/90 font-semibold">116</a> — Uganda Police</p>
                 <p className="text-white/70 text-sm"><a href="tel:0800199699" className="text-white/90 font-semibold">0800 199 699</a> — GBV Helpline (toll-free)</p>
               </div>

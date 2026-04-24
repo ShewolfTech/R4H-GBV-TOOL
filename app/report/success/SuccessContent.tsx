@@ -37,6 +37,7 @@ export default function SuccessContent() {
         </div>
         <div className="p-4 rounded-2xl border border-white/10 text-left mb-6" style={{ background: "rgba(255,255,255,0.05)" }}>
           <p className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2">If you need immediate help</p>
+          <p className="text-white/70 text-sm"><a href="tel:+256760208851" className="text-white/90 font-semibold">+256 760 208 851</a> — Rights 4 Her Uganda</p>
           <p className="text-white/70 text-sm"><a href="tel:116" className="text-white/90 font-semibold">116</a> — Uganda Police</p>
           <p className="text-white/70 text-sm mt-1"><a href="tel:0800199699" className="text-white/90 font-semibold">0800 199 699</a> — GBV Helpline (toll-free)</p>
         </div>

@@ -260,7 +260,7 @@ export default function ReportPage() {
             <div className="form-section">
               <h3 className="form-section-title">Section 2: Nature of Violation</h3>
               <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-              <CheckboxGroup label="Type(s) of Violence Experienced" options={VIOLENCE_TYPES} values={violenceTypes} onChange={v => { setViolenceTypes(v); setStepWarning(""); }} optional />
+              <CheckboxGroup label="Type(s) of Violence Experienced" options={VIOLENCE_TYPES} values={violenceTypes} onChange={(v: string[]) => { setViolenceTypes(v); setStepWarning(""); }} optional />
               {showDigital && (
                 <div className="mt-2 p-4 rounded-xl bg-purple-50 border border-purple-100">
                   <CheckboxGroup label="Digital Abuse Types" options={DIGITAL_ABUSE_TYPES} values={digitalAbuseTypes} onChange={setDigitalAbuseTypes} optional />
@@ -424,7 +424,7 @@ export default function ReportPage() {
             <div className="form-section">
               <h3 className="form-section-title">Contributing Factors</h3>
               <p className="form-section-subtitle">Optional — select all that apply.</p>
-              <CheckboxGroup label="" options={CONTRIBUTING_FACTORS} values={contributingFactors} onChange={v => { setContributingFactors(v); setStepWarning(""); }} optional />
+              <CheckboxGroup label="" options={CONTRIBUTING_FACTORS} values={contributingFactors} onChange={(v: string[]) => { setContributingFactors(v); setStepWarning(""); }} optional />
               {contributingFactors.includes("Other") && (
                 <TextInput label="Please describe" name="context.contributingFactorsOther" register={register} optional />
               )}
@@ -477,7 +477,7 @@ export default function ReportPage() {
                 <TextareaInput label="Outcome of the report" name="reporting.reportOutcome" register={register} optional rows={3} placeholder="What happened after you reported?" />
               </>
             )}
-            <CheckboxGroup label="Support services received" options={SUPPORT_SERVICES} values={servicesReceived} onChange={v => { setServicesReceived(v); setStepWarning(""); }} optional />
+            <CheckboxGroup label="Support services received" options={SUPPORT_SERVICES} values={servicesReceived} onChange={(v: string[]) => { setServicesReceived(v); setStepWarning(""); }} optional />
             {servicesReceived.includes("Other") && (
               <TextInput label="Other service" name="reporting.servicesOther" register={register} optional />
             )}
@@ -491,7 +491,7 @@ export default function ReportPage() {
             <div className="form-section">
               <h3 className="form-section-title">Section 5: Current Needs</h3>
               <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-              <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={v => { setPrioritySupport(v); setStepWarning(""); }} optional />
+              <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={(v: string[]) => { setPrioritySupport(v); setStepWarning(""); }} optional />
               {prioritySupport.includes("Other") && (
                 <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
               )}
@@ -530,7 +530,7 @@ export default function ReportPage() {
                 label=""
                 options={["Survivor is in immediate danger", "Perpetrator has ongoing access to survivor", "Survivor has no safe place to stay", "Survivor requires urgent medical attention", "None of the above"]}
                 values={immediateRisk}
-                onChange={v => { setImmediateRisk(v); setStepWarning(""); }}
+                onChange={(v: string[]) => { setImmediateRisk(v); setStepWarning(""); }}
                 optional
               />
             </div>
