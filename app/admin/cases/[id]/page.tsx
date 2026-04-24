@@ -195,11 +195,13 @@ export default function CaseDetail() {
             <InfoRow label="Immediate Risk Indicators" value={ned.immediateRisk} />
           </Section>
 
-          {(ref.communityConnection || ref.communitySafetyVision || ref.healingMessage) && (
+          {(ref.communityImpact?.length || ref.communityImpactDetail || ref.saferCommunity?.length || ref.saferCommunityDetail || ref.healingMessage) && (
             <Section title="Reflection & Healing">
-              <InfoRow label="Community Connection" value={ref.communityConnection} />
-              <InfoRow label="Safety Vision" value={ref.communitySafetyVision} />
-              <InfoRow label="Other Information" value={ref.healingMessage} />
+              <InfoRow label="Community Impact" value={ref.communityImpact} />
+              <InfoRow label="Community Impact (Detail)" value={ref.communityImpactDetail} />
+              <InfoRow label="Safer Community Pathways" value={ref.saferCommunity} />
+              <InfoRow label="Safer Community (Detail)" value={ref.saferCommunityDetail} />
+              <InfoRow label="Healing Message" value={ref.healingMessage} />
             </Section>
           )}
 

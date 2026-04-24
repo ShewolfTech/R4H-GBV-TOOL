@@ -16,6 +16,8 @@ export default function ReportPage() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [stepWarning, setStepWarning] = useState("");
+  const [confirmSkip, setConfirmSkip] = useState(false);
 
   // Controlled state for conditional rendering
   const [selectedDistrict, setSelectedDistrict] = useState("");
@@ -28,6 +30,8 @@ export default function ReportPage() {
   const [isSurvivorSafe, setIsSurvivorSafe] = useState("");
   const [perpetratorAccess, setPerpetratorAccess] = useState("");
   const [primaryDriver, setPrimaryDriver] = useState("");
+  const [communityImpact, setCommunityImpact] = useState<string[]>([]);
+  const [saferCommunity, setSaferCommunity] = useState<string[]>([]);
 
   // Multi-select state
   const [genderIdentity, setGenderIdentity] = useState<string[]>([]);
@@ -63,6 +67,81 @@ export default function ReportPage() {
     return "Email address or phone number";
   };
 
+  // ── Step validation ────────────────────────────────────────────────────────
+  // Returns a warning message if the step looks empty, or "" if OK
+  function getStepWarning(s: number): string {
+    switch (s) {
+      case 0:
+        // At least district or age range should be filled
+        if (!selectedDistrict && !genderIdentity.length && !disabilityStatus.length)
+          return "You haven't filled in any survivor information. Are you sure you want to continue?";
+        return "";
+      case 1:
+        // Violence type is the most important field on this step
+        if (!violenceTypes.length)
+          return "Please select at least one type of violence experienced before continuing.";
+        return "";
+      case 2:
+        // Context is optional overall but nudge if completely empty
+        if (!linkedToSOGI && !linkedToEnvironment && !contributingFactors.length)
+          return "You haven't filled in any context information. Are you sure you want to continue?";
+        return "";
+      case 3:
+        // Nudge if nothing on reporting is filled
+        if (!didReport && !servicesReceived.length)
+          return "You haven't filled in any reporting information. Are you sure you want to continue?";
+        return "";
+      case 4:
+        // Urgency is important — warn if missing
+        if (!prioritySupport.length && !immediateRisk.length)
+          return "Please select at least one priority support need or risk indicator before continuing.";
+        return "";
+      case 5:
+        // Reflection is voluntary — no warning needed
+        return "";
+      default:
+        return "";
+    }
+  }
+
+  function handleNext() {
+    const warning = getStepWarning(step);
+
+    // Step 1 (violence type) — hard nudge, require confirmation
+    if (step === 1 && !violenceTypes.length) {
+      setStepWarning("Please select at least one type of violence experienced before continuing.");
+      setConfirmSkip(false);
+      return;
+    }
+
+    // Step 4 (needs) — hard nudge
+    if (step === 4 && !prioritySupport.length && !immediateRisk.length) {
+      setStepWarning("Please select at least one priority support need or immediate risk indicator before continuing.");
+      setConfirmSkip(false);
+      return;
+    }
+
+    // Soft warnings — show once, allow skip on second click
+    if (warning && !confirmSkip) {
+      setStepWarning(warning);
+      setConfirmSkip(true);
+      return;
+    }
+
+    // Clear and advance
+    setStepWarning("");
+    setConfirmSkip(false);
+    setStep(s => Math.min(s + 1, SECTIONS.length - 1));
+  }
+
+  const prev = () => {
+    setStepWarning("");
+    setConfirmSkip(false);
+    setStep(s => Math.max(s - 1, 0));
+  };
+
+  const progress = ((step + 1) / SECTIONS.length) * 100;
+
   const onSubmit = async (data: any) => {
     setLoading(true); setSubmitError("");
     const payload = {
@@ -96,13 +175,17 @@ export default function ReportPage() {
         contactMethods: consentForContact === "Yes" ? contactMethods : [],
         contactDetails: consentForContact === "Yes" ? data.needs?.contactDetails : "",
       },
-      reflection: data.reflection || {},
+      reflection: {
+        ...data.reflection,
+        communityImpact,
+        saferCommunity,
+      },
       consent: {
-        dataCollection: data.consent?.dataCollection || false,
-        referralServices: data.consent?.referralServices || false,
+        dataCollection:     data.consent?.dataCollection     || false,
+        referralServices:   data.consent?.referralServices   || false,
         anonymizedAdvocacy: data.consent?.anonymizedAdvocacy || false,
-        signature: data.consent?.signature || "",
-        consentDate: data.consent?.consentDate || "",
+        signature:          data.consent?.signature          || "",
+        consentDate:        data.consent?.consentDate        || "",
       },
     };
     try {
@@ -113,10 +196,6 @@ export default function ReportPage() {
     } catch { setSubmitError("Network error. Please check your connection."); }
     finally { setLoading(false); }
   };
-
-  const next = () => setStep(s => Math.min(s + 1, SECTIONS.length - 1));
-  const prev = () => setStep(s => Math.max(s - 1, 0));
-  const progress = ((step + 1) / SECTIONS.length) * 100;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
@@ -178,11 +257,10 @@ export default function ReportPage() {
         {/* STEP 1 — Nature of Violation & Safety */}
         {step === 1 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
-
             <div className="form-section">
               <h3 className="form-section-title">Section 2: Nature of Violation</h3>
               <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-              <CheckboxGroup label="Type(s) of Violence Experienced" options={VIOLENCE_TYPES} values={violenceTypes} onChange={setViolenceTypes} optional />
+              <CheckboxGroup label="Type(s) of Violence Experienced" options={VIOLENCE_TYPES} values={violenceTypes} onChange={v => { setViolenceTypes(v); setStepWarning(""); }} optional />
               {showDigital && (
                 <div className="mt-2 p-4 rounded-xl bg-purple-50 border border-purple-100">
                   <CheckboxGroup label="Digital Abuse Types" options={DIGITAL_ABUSE_TYPES} values={digitalAbuseTypes} onChange={setDigitalAbuseTypes} optional />
@@ -199,7 +277,6 @@ export default function ReportPage() {
                 <TextInput label="Describe perpetrator" name="incident.perpetratorOther" register={register} optional />
               )}
             </div>
-
             <div className="form-section">
               <h3 className="form-section-title">Incident Details</h3>
               <div className="grid grid-cols-2 gap-4 mb-4">
@@ -242,7 +319,6 @@ export default function ReportPage() {
               <TextareaInput label="Detailed Description of Incident" name="incident.description" register={register} optional rows={5}
                 placeholder="Describe what happened in your own words. Share only what you feel comfortable sharing." />
             </div>
-
             <div className="form-section">
               <h3 className="form-section-title">Impact of the Violence</h3>
               <p className="form-section-subtitle">Select all that apply.</p>
@@ -257,7 +333,6 @@ export default function ReportPage() {
                 <TextInput label="Describe other impact" name="incident.impactOther" register={register} optional />
               )}
             </div>
-
             <div className="form-section" style={{ borderColor: "#fecaca", borderWidth: "1.5px" }}>
               <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Safety & Risk Assessment</h3>
               <p className="form-section-subtitle">This helps us prioritise urgent support for you.</p>
@@ -294,15 +369,12 @@ export default function ReportPage() {
                 <TextInput label="Describe other urgent support needed" name="incident.urgentSupportOther" register={register} optional />
               )}
             </div>
-
           </div>
         )}
 
         {/* STEP 2 — Context & Contributing Factors */}
         {step === 2 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
-
-            {/* Identity-Based Violence */}
             <div className="form-section">
               <h3 className="form-section-title">Link to Identity-Based Violence</h3>
               <p className="form-section-subtitle">Optional — share only what you feel comfortable with.</p>
@@ -311,10 +383,7 @@ export default function ReportPage() {
                 <div className="space-y-1.5 mt-1">
                   {["Yes", "No", "Not sure"].map(opt => (
                     <label key={opt} className="radio-item">
-                      <input type="radio" value={opt} className="w-4 h-4"
-                        checked={linkedToSOGI === opt}
-                        onChange={() => setLinkedToSOGI(opt)}
-                      />
+                      <input type="radio" value={opt} className="w-4 h-4" checked={linkedToSOGI === opt} onChange={() => { setLinkedToSOGI(opt); setStepWarning(""); }} />
                       <span className="text-sm text-gray-700">{opt}</span>
                     </label>
                   ))}
@@ -322,21 +391,13 @@ export default function ReportPage() {
               </div>
               {showIdentityFactors && (
                 <div className="mt-2 p-4 rounded-xl bg-blue-50 border border-blue-100 animate-[slideUp_0.3s_ease-out]">
-                  <CheckboxGroup
-                    label="If yes or not sure, what do you think contributed? (Select all that apply)"
-                    options={IDENTITY_FACTORS}
-                    values={identityFactors}
-                    onChange={setIdentityFactors}
-                    optional
-                  />
+                  <CheckboxGroup label="If yes or not sure, what do you think contributed? (Select all that apply)" options={IDENTITY_FACTORS} values={identityFactors} onChange={setIdentityFactors} optional />
                   {identityFactors.includes("Other") && (
                     <TextInput label="Please describe" name="context.identityFactorsOther" register={register} optional />
                   )}
                 </div>
               )}
             </div>
-
-            {/* Environmental / Livelihood Factors */}
             <div className="form-section">
               <h3 className="form-section-title">Link to Environmental / Livelihood Factors</h3>
               <p className="form-section-subtitle">Optional.</p>
@@ -345,10 +406,7 @@ export default function ReportPage() {
                 <div className="space-y-1.5 mt-1">
                   {["Yes", "No", "Not sure"].map(opt => (
                     <label key={opt} className="radio-item">
-                      <input type="radio" value={opt} className="w-4 h-4"
-                        checked={linkedToEnvironment === opt}
-                        onChange={() => setLinkedToEnvironment(opt)}
-                      />
+                      <input type="radio" value={opt} className="w-4 h-4" checked={linkedToEnvironment === opt} onChange={() => { setLinkedToEnvironment(opt); setStepWarning(""); }} />
                       <span className="text-sm text-gray-700">{opt}</span>
                     </label>
                   ))}
@@ -356,47 +414,28 @@ export default function ReportPage() {
               </div>
               {showEnvFactors && (
                 <div className="mt-2 p-4 rounded-xl bg-green-50 border border-green-100 animate-[slideUp_0.3s_ease-out]">
-                  <CheckboxGroup
-                    label="If yes or not sure, how was it linked? (Select all that apply)"
-                    options={ENVIRONMENTAL_FACTORS}
-                    values={environmentFactors}
-                    onChange={setEnvironmentFactors}
-                    optional
-                  />
+                  <CheckboxGroup label="If yes or not sure, how was it linked? (Select all that apply)" options={ENVIRONMENTAL_FACTORS} values={environmentFactors} onChange={setEnvironmentFactors} optional />
                   {environmentFactors.includes("Other") && (
                     <TextInput label="Please describe" name="context.environmentFactorsOther" register={register} optional />
                   )}
                 </div>
               )}
             </div>
-
-            {/* Contributing Factors */}
             <div className="form-section">
               <h3 className="form-section-title">Contributing Factors</h3>
               <p className="form-section-subtitle">Optional — select all that apply.</p>
-              <CheckboxGroup
-                label=""
-                options={CONTRIBUTING_FACTORS}
-                values={contributingFactors}
-                onChange={setContributingFactors}
-                optional
-              />
+              <CheckboxGroup label="" options={CONTRIBUTING_FACTORS} values={contributingFactors} onChange={v => { setContributingFactors(v); setStepWarning(""); }} optional />
               {contributingFactors.includes("Other") && (
                 <TextInput label="Please describe" name="context.contributingFactorsOther" register={register} optional />
               )}
             </div>
-
-            {/* Primary Driver */}
             <div className="form-section" style={{ background: "#fafafa" }}>
               <h3 className="form-section-title">Primary Driver</h3>
               <p className="form-section-subtitle">Optional — if identifiable, select one.</p>
               <div className="space-y-1.5">
                 {PRIMARY_DRIVERS.map(opt => (
                   <label key={opt} className="radio-item">
-                    <input type="radio" value={opt} className="w-4 h-4"
-                      checked={primaryDriver === opt}
-                      onChange={() => setPrimaryDriver(opt)}
-                    />
+                    <input type="radio" value={opt} className="w-4 h-4" checked={primaryDriver === opt} onChange={() => setPrimaryDriver(opt)} />
                     <span className="text-sm text-gray-700">{opt}</span>
                   </label>
                 ))}
@@ -407,7 +446,6 @@ export default function ReportPage() {
                 </div>
               )}
             </div>
-
           </div>
         )}
 
@@ -423,7 +461,7 @@ export default function ReportPage() {
                   <label key={opt} className="radio-item">
                     <input type="radio" value={opt} className="w-4 h-4"
                       {...register("reporting.didReport")}
-                      onChange={e => { register("reporting.didReport").onChange(e); setDidReport(e.target.value); }}
+                      onChange={e => { register("reporting.didReport").onChange(e); setDidReport(e.target.value); setStepWarning(""); }}
                     />
                     <span className="text-sm text-gray-700">{opt}</span>
                   </label>
@@ -439,7 +477,7 @@ export default function ReportPage() {
                 <TextareaInput label="Outcome of the report" name="reporting.reportOutcome" register={register} optional rows={3} placeholder="What happened after you reported?" />
               </>
             )}
-            <CheckboxGroup label="Support services received" options={SUPPORT_SERVICES} values={servicesReceived} onChange={setServicesReceived} optional />
+            <CheckboxGroup label="Support services received" options={SUPPORT_SERVICES} values={servicesReceived} onChange={v => { setServicesReceived(v); setStepWarning(""); }} optional />
             {servicesReceived.includes("Other") && (
               <TextInput label="Other service" name="reporting.servicesOther" register={register} optional />
             )}
@@ -450,11 +488,10 @@ export default function ReportPage() {
         {/* STEP 4 — Needs */}
         {step === 4 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
-
             <div className="form-section">
               <h3 className="form-section-title">Section 5: Current Needs</h3>
               <p className="form-section-subtitle">Select everything that applies to your experience.</p>
-              <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={setPrioritySupport} optional />
+              <CheckboxGroup label="Priority support needed" options={PRIORITY_SUPPORT} values={prioritySupport} onChange={v => { setPrioritySupport(v); setStepWarning(""); }} optional />
               {prioritySupport.includes("Other") && (
                 <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
               )}
@@ -486,37 +523,55 @@ export default function ReportPage() {
                 </div>
               )}
             </div>
-
-            {/* Immediate Risk Indicator */}
             <div className="form-section" style={{ borderColor: "#fecaca", borderWidth: "1.5px" }}>
               <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Risk Indicator</h3>
               <p className="form-section-subtitle">Optional — select all that apply.</p>
               <CheckboxGroup
                 label=""
-                options={[
-                  "Survivor is in immediate danger",
-                  "Perpetrator has ongoing access to survivor",
-                  "Survivor has no safe place to stay",
-                  "Survivor requires urgent medical attention",
-                  "None of the above",
-                ]}
+                options={["Survivor is in immediate danger", "Perpetrator has ongoing access to survivor", "Survivor has no safe place to stay", "Survivor requires urgent medical attention", "None of the above"]}
                 values={immediateRisk}
-                onChange={setImmediateRisk}
+                onChange={v => { setImmediateRisk(v); setStepWarning(""); }}
                 optional
               />
             </div>
-
           </div>
         )}
 
-        {/* STEP 5 — Reflection */}
+        {/* STEP 5 — Reflection & Healing */}
         {step === 5 && (
-          <div className="form-section animate-[slideUp_0.4s_ease-out]">
-            <h3 className="form-section-title">Section 6: Reflection & Healing</h3>
-            <p className="form-section-subtitle">This section is entirely voluntary. Share only what feels right.</p>
-            <TextareaInput label="How has this experience affected your connection with the community or environment?" name="reflection.communityConnection" register={register} optional rows={4} />
-            <TextareaInput label="What would make your community safer for women in their diversity?" name="reflection.communitySafetyVision" register={register} optional rows={4} />
-            <TextareaInput label="Is there any other information or message you would like to share?" name="reflection.healingMessage" register={register} optional rows={4} placeholder="Any other info relevant to this incident..." />
+          <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
+            <div className="form-section">
+              <h3 className="form-section-title">Impact on Community and Environment</h3>
+              <p className="form-section-subtitle">How has this experience affected your sense of safety, belonging, or connection to your community or environment? You may share as much or as little as you feel comfortable.</p>
+              <CheckboxGroup
+                label=""
+                options={["I feel less safe in my community", "I feel isolated or excluded", "I have reduced participation in community activities", "I have been displaced or had to relocate", "I feel unsafe accessing natural resources (e.g., water, land, workplaces)", "My trust in people or institutions has been affected", "No significant change", "Prefer not to say"]}
+                values={communityImpact}
+                onChange={setCommunityImpact}
+                optional
+              />
+              <TextareaInput label="If you would like, please share more" name="reflection.communityImpactDetail" register={register} optional rows={3} placeholder="Any additional details you would like to share..." />
+            </div>
+            <div className="form-section">
+              <h3 className="form-section-title">Pathways to Safer Communities</h3>
+              <p className="form-section-subtitle">In your view, what changes would make your community safer and more supportive for women and queer persons? Select any that apply or add your own ideas.</p>
+              <CheckboxGroup
+                label=""
+                options={["Stronger laws and enforcement against violence", "Safe and inclusive support services (health, legal, shelter)", "Community awareness and education", "Reduced stigma and discrimination", "Economic empowerment and livelihood opportunities", "Safer public spaces and housing", "Accountability for perpetrators", "Inclusion in climate and environmental programs", "Support from community, cultural, and religious leaders", "Protection for human rights defenders", "Other"]}
+                values={saferCommunity}
+                onChange={setSaferCommunity}
+                optional
+              />
+              {saferCommunity.includes("Other") && (
+                <TextInput label="Other suggestion" name="reflection.saferCommunityOther" register={register} optional />
+              )}
+              <TextareaInput label="Additional suggestions" name="reflection.saferCommunityDetail" register={register} optional rows={3} placeholder="Any other ideas or suggestions..." />
+            </div>
+            <div className="form-section">
+              <h3 className="form-section-title">Message of Healing or Resilience</h3>
+              <p className="form-section-subtitle">Would you like to share a message for yourself or others who may be going through similar experiences?</p>
+              <TextareaInput label="" name="reflection.healingMessage" register={register} optional rows={4} placeholder="A word of strength, hope, or healing..." />
+            </div>
           </div>
         )}
 
@@ -529,8 +584,6 @@ export default function ReportPage() {
                 <p className="font-semibold text-yellow-800 mb-2">Before you submit</p>
                 <p>By submitting this form, I confirm the information provided is accurate to the best of my knowledge. I understand that <strong>Rights 4 Her Uganda</strong> will use this information strictly for advocacy, referrals, and protection support, under confidentiality and data protection policies.</p>
               </div>
-
-              {/* Consent and Confidentiality */}
               <div className="mb-5">
                 <p className="form-label mb-3">Consent and Confidentiality <span className="text-red-500 font-semibold">*</span></p>
                 <div className="space-y-3">
@@ -548,29 +601,16 @@ export default function ReportPage() {
                   </label>
                 </div>
               </div>
-
-              {/* Signature and Date */}
               <div className="grid grid-cols-2 gap-4 mb-5">
                 <div>
                   <label className="form-label">Signature / Initials <span className="text-gray-400 font-normal">(optional)</span></label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. A.K."
-                    {...register("consent.signature")}
-                  />
+                  <input type="text" className="form-input" placeholder="e.g. A.K." {...register("consent.signature")} />
                 </div>
                 <div>
                   <label className="form-label">Date <span className="text-gray-400 font-normal">(optional)</span></label>
-                  <input
-                    type="date"
-                    className="form-input"
-                    {...register("consent.consentDate")}
-                  />
+                  <input type="date" className="form-input" {...register("consent.consentDate")} />
                 </div>
               </div>
-
-              {/* General data consent */}
               <div className="border-t border-gray-100 pt-4">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" className="mt-0.5 w-5 h-5 rounded" {...register("dataConsent", { required: "You must confirm consent to submit." })} />
@@ -579,7 +619,6 @@ export default function ReportPage() {
                 {errors.dataConsent && <p className="text-red-500 text-sm mt-2">{errors.dataConsent.message as string}</p>}
               </div>
             </div>
-
             {submitError && (
               <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm mb-4">{submitError}</div>
             )}
@@ -588,21 +627,38 @@ export default function ReportPage() {
 
         {/* Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3 z-30 shadow-lg">
-          <div className="max-w-2xl mx-auto flex gap-3">
-            {step > 0 && (
-              <button type="button" onClick={prev} className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-colors">
-                Back
-              </button>
+          <div className="max-w-2xl mx-auto space-y-2">
+
+            {/* Step warning banner */}
+            {stepWarning && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-200 border border-red-700 text-red-900 text-xs animate-[slideUp_0.3s_ease-out]">
+                <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+                <span>{stepWarning}{confirmSkip ? " Tap Continue again to proceed anyway." : ""}</span>
+              </div>
             )}
-            {step < SECTIONS.length - 1 ? (
-              <button type="button" onClick={next} className="flex-1 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 active:scale-95" style={{ background: "linear-gradient(135deg,#1DB954,#000000)" }}>
-                Continue
-              </button>
-            ) : (
-              <button type="submit" disabled={loading} className="flex-1 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-60" style={{ background: "linear-gradient(135deg,#1DB954,#000000)", color: "#ffffff" }}>
-                {loading ? "Submitting..." : "Submit Report"}
-              </button>
-            )}
+
+            <div className="flex gap-3">
+              {step > 0 && (
+                <button type="button" onClick={prev} className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-colors">
+                  Back
+                </button>
+              )}
+              {step < SECTIONS.length - 1 ? (
+                <button type="button" onClick={handleNext}
+                  className="flex-1 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 active:scale-95"
+                  style={{ background: stepWarning && !confirmSkip ? "#d97706" : "linear-gradient(135deg,#1DB954,#000000)" }}>
+                  {confirmSkip ? "Yes, Continue Anyway" : "Continue"}
+                </button>
+              ) : (
+                <button type="submit" disabled={loading}
+                  className="flex-1 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-60"
+                  style={{ background: "linear-gradient(135deg,#1DB954,#000000)", color: "#ffffff" }}>
+                  {loading ? "Submitting..." : "Submit Report"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </form>
