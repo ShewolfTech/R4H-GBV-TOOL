@@ -248,15 +248,15 @@ export default function ReportPage() {
                   <option value="">— Select sub-county —</option>
                   {subCounties.map(sc => <option key={sc} value={sc}>{sc}</option>)}
                 </select>
-              </div>
-            )}
-            <TextInput
+                <TextInput
               label="Village / Parish / Exact Location"
               name="survivor.village"
               register={register}
               optional
               placeholder="e.g. Bwaise village, Kamwokya Parish"
             />
+              </div>
+            )}
             <TextInput label="Occupation / Source of Livelihood" name="survivor.occupation" register={register} optional />
           </div>
         )}
