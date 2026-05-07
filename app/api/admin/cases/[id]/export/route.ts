@@ -201,7 +201,7 @@ function buildSingleCasePDF(incident: any) {
       <div class="case-ref">${incident.caseRef}</div>
       <div class="title">Incident Case Report</div>
       <div class="badges">
-        <span class="badge" style="background:${urgencyColors[u] || "#666"}30;color:${urgencyColors[u] || "#666"};border:1px solid ${urgencyColors[u] || "#666"}50">${u || "Urgency not set"}</span>
+        <span class="badge" style="background:${urgencyColors[u] || "#fff"}30;color:${urgencyColors[u] || "#fff"};border:1px solid ${urgencyColors[u] || "#fff"}50">${u || "Urgency not set"}</span>
         <span class="badge" style="background:${statusColors[s]}30;color:${statusColors[s]};border:1px solid ${statusColors[s]}50">${s}</span>
         ${cm.confidentialityLevel ? `<span class="badge" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">Confidentiality: ${cm.confidentialityLevel}</span>` : ""}
         ${sur.isHRD === "Yes" ? `<span class="badge" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">Human Rights Defender</span>` : ""}
