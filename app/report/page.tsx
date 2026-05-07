@@ -218,7 +218,7 @@ export default function ReportPage() {
             </div>
             {isHRD === "Yes" && (
               <div className="animate-[slideUp_0.3s_ease-out]">
-                <TextInput label="Organisation Affiliation" name="survivor.hrdOrganisation" register={register} optional placeholder="Name of your organisation" />
+                <TextInput label="Organisation Affiliation and Themantic Area of Work" name="survivor.hrdOrganisation" register={register} optional placeholder="Name of your organisation and the thematic area of work" />
               </div>
             )}
 
