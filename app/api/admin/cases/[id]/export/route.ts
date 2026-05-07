@@ -34,6 +34,12 @@ function arr(val: any) {
   return val ? String(val) : "—";
 }
 
+function bool(val: any) {
+  if (val === true || val === "true") return "Yes";
+  if (val === false || val === "false") return "No";
+  return val ? String(val) : "—";
+}
+
 function row(label: string, value: any) {
   const v = arr(value);
   if (!v || v === "—") return "";
@@ -62,6 +68,7 @@ function buildSingleCasePDF(incident: any) {
   const ned = incident.needs          || {};
   const ref = incident.reflection     || {};
   const cm  = incident.caseManagement || {};
+  const con = incident.consent        || {};
 
   const urgencyColors: Record<string,string> = { Emergency:"#C0392B", High:"#E67E22", Medium:"#F39C12", Low:"#27AE60" };
   const statusColors:  Record<string,string> = { Open:"#2563EB", Referred:"#7C3AED", Closed:"#6B7280" };
@@ -71,70 +78,90 @@ function buildSingleCasePDF(incident: any) {
 
   const survivorRows = [
     row("Preferred Name / Code",   sur.preferredName),
-    row("Age Range",                sur.ageRange),
-    row("Gender Identity",          sur.genderIdentity),
-    row("Gender (Self-describe)",   sur.genderIdentityOther),
-    row("Identity / Support Note",  sur.sexualOrientation),
-    row("Disability Status",        sur.disabilityStatus),
-    row("District",                 sur.district),
-    row("Sub-County",               sur.subCounty),
-    row("Occupation",               sur.occupation),
+    row("Age Range",               sur.ageRange),
+    row("Gender Identity",         sur.genderIdentity),
+    row("Gender (Self-describe)",  sur.genderIdentityOther),
+    row("Identity / Support Note", sur.sexualOrientation),
+    row("Disability Status",       sur.disabilityStatus),
+    row("Human Rights Defender?",  sur.isHRD),
+    row("HRD Organisation",        sur.hrdOrganisation),
+    row("Region",                  sur.region),
+    row("District",                sur.district),
+    row("Village / Parish",        sur.village),
+    row("Occupation",              sur.occupation),
   ].join("");
 
   const incidentRows = [
-    row("Violence Types",           inc.violenceTypes),
-    row("Digital Abuse Types",      inc.digitalAbuseTypes),
-    row("Perpetrator",              inc.perpetrator),
-    row("Date of Incident",         fmt(inc.incidentDate)),
-    row("Time of Incident",         inc.incidentTime),
-    row("Location Type",            inc.locationOfIncident),
-    row("Frequency",                inc.incidentFrequency),
-    row("Impact of Violence",       inc.impactOfViolence),
+    row("Violence Types",          inc.violenceTypes),
+    row("Digital Abuse Types",     inc.digitalAbuseTypes),
+    row("Perpetrator",             inc.perpetrator),
+    row("Date of Incident",        fmt(inc.incidentDate)),
+    row("Time of Incident",        inc.incidentTime),
+    row("Location Type",           inc.locationOfIncident),
+    row("Exact Location",          inc.exactLocation),
+    row("Frequency",               inc.incidentFrequency),
+    row("Impact of Violence",      inc.impactOfViolence),
     inc.description ? `<tr><td style="padding:7px 12px;font-size:11px;color:#666;font-weight:500;vertical-align:top;border-bottom:1px solid #f0f0f0">Description</td><td style="padding:7px 12px;font-size:12px;color:#1a1a1a;border-bottom:1px solid #f0f0f0;white-space:pre-wrap;line-height:1.6">${inc.description}</td></tr>` : "",
   ].join("");
 
   const safetyRows = [
-    row("Survivor Currently Safe?",    inc.isSurvivorSafe),
-    row("Perpetrator Has Access?",     inc.perpetratorAccess),
-    row("Urgent Support Needed",       inc.urgentSupport),
+    row("Survivor Currently Safe?",  inc.isSurvivorSafe),
+    row("Perpetrator Has Access?",   inc.perpetratorAccess),
+    row("Urgent Support Needed",     inc.urgentSupport),
   ].join("");
 
   const contextRows = [
-    row("Linked to SOGI",              ctx.linkedToSOGI),
-    row("Linked to Environment",       ctx.linkedToEnvironment),
-    row("Environmental Description",   ctx.environmentDescription),
-    row("Contributing Factors",        ctx.contributingFactors),
+    row("Linked to SOGI",            ctx.linkedToSOGI),
+    row("Identity Factors",          ctx.identityFactors),
+    row("Linked to Environment",     ctx.linkedToEnvironment),
+    row("Environmental Factors",     ctx.environmentFactors),
+    row("Contributing Factors",      ctx.contributingFactors),
+    row("Primary Driver",            ctx.primaryDriver),
   ].join("");
 
   const reportingRows = [
-    row("Did Report?",       rep.didReport),
-    row("Reported To",       rep.reportedTo),
-    row("Report Outcome",    rep.reportOutcome),
-    row("Services Received", rep.servicesReceived),
-    row("Barriers",          rep.barriers),
+    row("Did Report?",               rep.didReport),
+    row("Reported To",               rep.reportedTo),
+    row("Report Details",            rep.reportedToDetails),
+    row("Report Outcome",            rep.reportOutcome),
+    row("Services Received",         rep.servicesReceived),
+    row("Barriers",                  rep.barriers),
   ].join("");
 
   const needsRows = [
-    row("Priority Support",    ned.prioritySupport),
-    row("Urgency Level",       ned.urgencyLevel),
-    row("Consent for Contact", ned.consentForContact),
-    row("Contact Methods",     ned.contactMethods),
-    row("Contact Details",     ned.contactDetails),
+    row("Priority Support",          ned.prioritySupport),
+    row("Urgency Level",             ned.urgencyLevel),
+    row("Immediate Risk Indicators", ned.immediateRisk),
+    row("Consent for Contact",       ned.consentForContact),
+    row("Contact Methods",           ned.contactMethods),
+    row("Contact Details",           ned.contactDetails),
   ].join("");
 
   const reflectionRows = [
-    row("Community Connection", ref.communityConnection),
-    row("Safety Vision",        ref.communitySafetyVision),
-    row("Other Information",    ref.healingMessage),
+    row("Community Impact",          ref.communityImpact),
+    row("Community Impact Detail",   ref.communityImpactDetail),
+    row("Safer Community Pathways",  ref.saferCommunity),
+    row("Safer Community Detail",    ref.saferCommunityDetail),
+    row("Healing Message",           ref.healingMessage),
+  ].join("");
+
+  const consentRows = [
+    row("Data Collection",           con.dataCollection     ? "Yes" : con.dataCollection === false ? "No" : ""),
+    row("Referral Services",         con.referralServices   ? "Yes" : con.referralServices === false ? "No" : ""),
+    row("Anonymized Advocacy",       con.anonymizedAdvocacy ? "Yes" : con.anonymizedAdvocacy === false ? "No" : ""),
+    row("Signature / Initials",      con.signature),
+    row("Consent Date",              con.consentDate ? fmt(con.consentDate) : ""),
   ].join("");
 
   const cmRows = [
-    row("Case Officer",          cm.caseOfficer),
-    row("Immediate Actions",     cm.immediateActions),
-    row("Referral Partners",     cm.referralPartners),
-    row("Risk Assessment",       cm.riskAssessment),
-    row("Confidentiality Level", cm.confidentialityLevel),
-    row("Internal Notes",        cm.notes),
+    row("Case Officer",              cm.caseOfficer),
+    row("Organisation",              cm.caseOfficerOrg),
+    row("Date Assigned",             cm.assignedDate ? fmt(cm.assignedDate) : ""),
+    row("Immediate Actions",         cm.immediateActions),
+    row("Referral Partners",         cm.referralPartners),
+    row("Risk Assessment",           cm.riskAssessment),
+    row("Confidentiality Level",     cm.confidentialityLevel),
+    row("Internal Notes",            cm.notes),
   ].join("");
 
   return `<!DOCTYPE html>
@@ -174,29 +201,35 @@ function buildSingleCasePDF(incident: any) {
       <div class="case-ref">${incident.caseRef}</div>
       <div class="title">Incident Case Report</div>
       <div class="badges">
-        <span class="badge" style="background:${urgencyColors[u] || "#fff"}30;color:${urgencyColors[u] || "#fff"};border:1px solid ${urgencyColors[u] || "#fff"}50">${u || "Urgency not set"}</span>
+        <span class="badge" style="background:${urgencyColors[u] || "#666"}30;color:${urgencyColors[u] || "#666"};border:1px solid ${urgencyColors[u] || "#666"}50">${u || "Urgency not set"}</span>
         <span class="badge" style="background:${statusColors[s]}30;color:${statusColors[s]};border:1px solid ${statusColors[s]}50">${s}</span>
         ${cm.confidentialityLevel ? `<span class="badge" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">Confidentiality: ${cm.confidentialityLevel}</span>` : ""}
+        ${sur.isHRD === "Yes" ? `<span class="badge" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">Human Rights Defender</span>` : ""}
       </div>
     </div>
+
     <div class="meta-bar">
       <div class="meta-item"><div class="meta-label">Date Recorded</div><div class="meta-value">${fmtDateTime(incident.dateRecorded)}</div></div>
+      <div class="meta-item"><div class="meta-label">Region</div><div class="meta-value">${sur.region || "—"}</div></div>
       <div class="meta-item"><div class="meta-label">District</div><div class="meta-value">${sur.district || "—"}</div></div>
-      <div class="meta-item"><div class="meta-label">Sub-County</div><div class="meta-value">${sur.subCounty || "—"}</div></div>
       <div class="meta-item"><div class="meta-label">Case Officer</div><div class="meta-value">${cm.caseOfficer || "Unassigned"}</div></div>
+      <div class="meta-item"><div class="meta-label">Organisation</div><div class="meta-value">${cm.caseOfficerOrg || "—"}</div></div>
       <div class="meta-item"><div class="meta-label">Exported</div><div class="meta-value">${now}</div></div>
     </div>
+
     <div class="body">
       <div class="confidential">🔒 <strong>Confidential</strong> — Contains sensitive survivor data. Handle in accordance with Rights 4 Her Uganda data protection policies.</div>
       ${section("Section 1 — Survivor Information", survivorRows)}
       ${section("Section 2 — Nature of Violation", incidentRows)}
-      ${safetyRows.trim() ? section("⚠ Immediate Safety and Risk Assessment", safetyRows, true) : ""}
-      ${section("Section 3 — Context and Contributing Factors", contextRows)}
-      ${section("Section 4 — Reporting and Response", reportingRows)}
+      ${safetyRows.trim() ? section("⚠ Immediate Safety & Risk Assessment", safetyRows, true) : ""}
+      ${section("Section 3 — Context & Contributing Factors", contextRows)}
+      ${section("Section 4 — Reporting & Response", reportingRows)}
       ${section("Section 5 — Current Needs", needsRows)}
-      ${reflectionRows.trim() ? section("Section 6 — Reflection and Healing", reflectionRows) : ""}
-      ${cmRows.trim() ? section("Section 7 — Case Management (Internal)", cmRows) : ""}
+      ${reflectionRows.trim() ? section("Section 6 — Reflection & Healing", reflectionRows) : ""}
+      ${consentRows.trim() ? section("Section 7 — Consent & Confidentiality", consentRows) : ""}
+      ${cmRows.trim() ? section("Section 8 — Case Management (Internal)", cmRows) : ""}
     </div>
+
     <div class="footer">
       <span>Rights 4 Her Uganda — GBV Documentation Tool</span>
       <span>CONFIDENTIAL · ${incident.caseRef} · ${now}</span>

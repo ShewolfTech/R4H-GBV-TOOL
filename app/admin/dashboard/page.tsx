@@ -7,6 +7,8 @@ import { format } from "date-fns";
 import PushToggle from "@/components/admin/PushToggle";
 import { UGANDA_DISTRICTS } from "@/lib/constants";
 
+const UGANDA_REGIONS = ["Central Region", "Eastern Region", "Northern Region", "Western Region"];
+
 const URGENCY_CLS: Record<string,string> = { Emergency:"badge-emergency", High:"badge-high", Medium:"badge-medium", Low:"badge-low" };
 const STATUS_CLS:  Record<string,string> = { Open:"status-open", Referred:"status-referred", Closed:"status-closed" };
 
@@ -19,22 +21,20 @@ export default function Dashboard() {
   const [loading, setLoading]     = useState(true);
   const [exporting, setExporting] = useState(false);
 
-  const [statusF,    setStatusF]    = useState("all");
-  const [urgencyF,   setUrgencyF]   = useState("all");
-  const [districtF,  setDistrictF]  = useState("all");
-  const [subCountyF, setSubCountyF] = useState("all");
-  const [search,     setSearch]     = useState("");
-  const [page,       setPage]       = useState(1);
-
-  const subCountyOptions = districtF !== "all" ? (UGANDA_DISTRICTS[districtF] || []) : [];
+  const [statusF,   setStatusF]   = useState("all");
+  const [urgencyF,  setUrgencyF]  = useState("all");
+  const [regionF,   setRegionF]   = useState("all");
+  const [districtF, setDistrictF] = useState("all");
+  const [search,    setSearch]    = useState("");
+  const [page,      setPage]      = useState(1);
 
   useEffect(() => { if (status === "unauthenticated") router.push("/admin"); }, [status]);
-  useEffect(() => { if (status === "authenticated") fetchRows(); }, [statusF, urgencyF, districtF, subCountyF, search, page, status]);
-  useEffect(() => { setSubCountyF("all"); setPage(1); }, [districtF]);
+  useEffect(() => { if (status === "authenticated") fetchRows(); }, [statusF, urgencyF, regionF, districtF, search, page, status]);
+  useEffect(() => { setDistrictF("all"); setPage(1); }, [regionF]);
 
   async function fetchRows() {
     setLoading(true);
-    const p = new URLSearchParams({ status: statusF, urgency: urgencyF, district: districtF, subCounty: subCountyF, search, page: String(page), limit: "20" });
+    const p = new URLSearchParams({ status: statusF, urgency: urgencyF, region: regionF, district: districtF, search, page: String(page), limit: "20" });
     const res  = await fetch(`/api/admin?${p}`);
     const data = await res.json();
     setRows(data.incidents || []); setTotal(data.total || 0); setPages(data.pages || 1);
@@ -43,10 +43,12 @@ export default function Dashboard() {
 
   function handleExport() {
     setExporting(true);
-    const p = new URLSearchParams({ status: statusF, urgency: urgencyF, district: districtF, subCounty: subCountyF, search });
+    const p = new URLSearchParams({ status: statusF, urgency: urgencyF, region: regionF, district: districtF, search });
     window.open(`/api/admin/export?${p}`, "_blank");
     setTimeout(() => setExporting(false), 2000);
   }
+
+  const hasFilters = statusF !== "all" || urgencyF !== "all" || regionF !== "all" || districtF !== "all" || search;
 
   const stats = [
     { label: "Total",    value: total,                                             color: "#254252" },
@@ -54,8 +56,6 @@ export default function Dashboard() {
     { label: "Referred", value: rows.filter(r => r.status === "Referred").length, color: "#7C3AED" },
     { label: "Closed",   value: rows.filter(r => r.status === "Closed").length,   color: "#6B7280" },
   ];
-
-  const hasFilters = statusF !== "all" || urgencyF !== "all" || districtF !== "all" || subCountyF !== "all" || search;
 
   if (status === "loading") return <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}><p className="text-gray-400 text-sm">Loading…</p></div>;
 
@@ -122,14 +122,13 @@ export default function Dashboard() {
                 <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
               </select>
+              <select value={regionF} onChange={e => { setRegionF(e.target.value); setPage(1); }} className="form-select">
+                <option value="all">All Regions</option>
+                {UGANDA_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
               <select value={districtF} onChange={e => { setDistrictF(e.target.value); setPage(1); }} className="form-select">
                 <option value="all">All Districts</option>
                 {Object.keys(UGANDA_DISTRICTS).map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-              <select value={subCountyF} onChange={e => { setSubCountyF(e.target.value); setPage(1); }}
-                className="form-select" disabled={districtF === "all"}>
-                <option value="all">{districtF === "all" ? "Select district first" : "All Sub-Counties"}</option>
-                {subCountyOptions.map(sc => <option key={sc} value={sc}>{sc}</option>)}
               </select>
             </div>
 
@@ -137,12 +136,12 @@ export default function Dashboard() {
             {hasFilters && (
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-gray-400">Active filters:</span>
-                {statusF    !== "all" && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">Status: {statusF}</span>}
-                {urgencyF   !== "all" && <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">Urgency: {urgencyF}</span>}
-                {districtF  !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">District: {districtF}</span>}
-                {subCountyF !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">Sub-County: {subCountyF}</span>}
+                {statusF   !== "all" && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">Status: {statusF}</span>}
+                {urgencyF  !== "all" && <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">Urgency: {urgencyF}</span>}
+                {regionF   !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">Region: {regionF}</span>}
+                {districtF !== "all" && <span className="text-xs bg-teal-50 text-teal-600 border border-teal-200 px-2 py-0.5 rounded-full">District: {districtF}</span>}
                 {search && <span className="text-xs bg-gray-50 text-gray-600 border border-gray-200 px-2 py-0.5 rounded-full">Search: {search}</span>}
-                <button onClick={() => { setStatusF("all"); setUrgencyF("all"); setDistrictF("all"); setSubCountyF("all"); setSearch(""); setPage(1); }}
+                <button onClick={() => { setStatusF("all"); setUrgencyF("all"); setRegionF("all"); setDistrictF("all"); setSearch(""); setPage(1); }}
                   className="text-xs text-red-400 hover:text-red-600 transition-colors ml-1">Clear all</button>
               </div>
             )}
@@ -160,7 +159,7 @@ export default function Dashboard() {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Case Ref</th><th>Date</th><th>District</th><th>Sub-County</th>
+                    <th>Case Ref</th><th>Date</th><th>Region</th><th>District</th>
                     <th>Violence Type(s)</th><th>Urgency</th><th>Status</th><th>Officer</th><th></th>
                   </tr>
                 </thead>
@@ -169,8 +168,8 @@ export default function Dashboard() {
                     <tr key={row._id}>
                       <td><span className="font-mono text-xs font-semibold" style={{ color: "#7bdcb5" }}>{row.caseRef}</span></td>
                       <td className="text-xs text-gray-500 whitespace-nowrap">{format(new Date(row.dateRecorded), "dd MMM yyyy")}</td>
+                      <td className="text-xs">{row.survivor?.region || "—"}</td>
                       <td className="text-xs">{row.survivor?.district || "—"}</td>
-                      <td className="text-xs">{row.survivor?.subCounty || "—"}</td>
                       <td>
                         <div className="flex flex-wrap gap-1">
                           {(row.incident?.violenceTypes || []).slice(0,2).map((t: string) => (
