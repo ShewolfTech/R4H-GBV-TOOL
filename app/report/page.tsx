@@ -20,50 +20,50 @@ export default function ReportPage() {
   const [confirmSkip, setConfirmSkip] = useState(false);
 
   // Controlled state
-  const [selectedDistrict,    setSelectedDistrict]    = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [linkedToEnvironment, setLinkedToEnvironment] = useState("");
-  const [linkedToSOGI,        setLinkedToSOGI]        = useState("");
-  const [didReport,           setDidReport]           = useState("");
-  const [consentForContact,   setConsentForContact]   = useState("");
-  const [locationOfIncident,  setLocationOfIncident]  = useState("");
-  const [incidentFrequency,   setIncidentFrequency]   = useState("");
-  const [isSurvivorSafe,      setIsSurvivorSafe]      = useState("");
-  const [perpetratorAccess,   setPerpetratorAccess]   = useState("");
-  const [primaryDriver,       setPrimaryDriver]       = useState("");
-  const [isHRD,               setIsHRD]               = useState("");
-  const [communityImpact,     setCommunityImpact]     = useState<string[]>([]);
-  const [saferCommunity,      setSaferCommunity]      = useState<string[]>([]);
+  const [linkedToSOGI, setLinkedToSOGI] = useState("");
+  const [didReport, setDidReport] = useState("");
+  const [consentForContact, setConsentForContact] = useState("");
+  const [locationOfIncident, setLocationOfIncident] = useState("");
+  const [incidentFrequency, setIncidentFrequency] = useState("");
+  const [isSurvivorSafe, setIsSurvivorSafe] = useState("");
+  const [perpetratorAccess, setPerpetratorAccess] = useState("");
+  const [primaryDriver, setPrimaryDriver] = useState("");
+  const [isHRD, setIsHRD] = useState("");
+  const [communityImpact, setCommunityImpact] = useState<string[]>([]);
+  const [saferCommunity, setSaferCommunity] = useState<string[]>([]);
 
   // Multi-select state
-  const [genderIdentity,      setGenderIdentity]      = useState<string[]>([]);
-  const [disabilityStatus,    setDisabilityStatus]    = useState<string[]>([]);
-  const [violenceTypes,       setViolenceTypes]       = useState<string[]>([]);
-  const [digitalAbuseTypes,   setDigitalAbuseTypes]   = useState<string[]>([]);
-  const [perpetrator,         setPerpetrator]         = useState<string[]>([]);
-  const [impactOfViolence,    setImpactOfViolence]    = useState<string[]>([]);
-  const [urgentSupport,       setUrgentSupport]       = useState<string[]>([]);
-  const [identityFactors,     setIdentityFactors]     = useState<string[]>([]);
-  const [environmentFactors,  setEnvironmentFactors]  = useState<string[]>([]);
+  const [genderIdentity, setGenderIdentity] = useState<string[]>([]);
+  const [disabilityStatus, setDisabilityStatus] = useState<string[]>([]);
+  const [violenceTypes, setViolenceTypes] = useState<string[]>([]);
+  const [digitalAbuseTypes, setDigitalAbuseTypes] = useState<string[]>([]);
+  const [perpetrator, setPerpetrator] = useState<string[]>([]);
+  const [impactOfViolence, setImpactOfViolence] = useState<string[]>([]);
+  const [urgentSupport, setUrgentSupport] = useState<string[]>([]);
+  const [identityFactors, setIdentityFactors] = useState<string[]>([]);
+  const [environmentFactors, setEnvironmentFactors] = useState<string[]>([]);
   const [contributingFactors, setContributingFactors] = useState<string[]>([]);
-  const [reportedTo,          setReportedTo]          = useState<string[]>([]);
-  const [servicesReceived,    setServicesReceived]    = useState<string[]>([]);
-  const [prioritySupport,     setPrioritySupport]     = useState<string[]>([]);
-  const [contactMethods,      setContactMethods]      = useState<string[]>([]);
-  const [immediateRisk,       setImmediateRisk]       = useState<string[]>([]);
+  const [reportedTo, setReportedTo] = useState<string[]>([]);
+  const [servicesReceived, setServicesReceived] = useState<string[]>([]);
+  const [prioritySupport, setPrioritySupport] = useState<string[]>([]);
+  const [contactMethods, setContactMethods] = useState<string[]>([]);
+  const [immediateRisk, setImmediateRisk] = useState<string[]>([]);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const subCounties = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
   const showDigital = violenceTypes.includes("Digital/Online Abuse");
   const showIdentityFactors = linkedToSOGI === "Yes" || linkedToSOGI === "Not sure";
-  const showEnvFactors      = linkedToEnvironment === "Yes" || linkedToEnvironment === "Not sure";
+  const showEnvFactors = linkedToEnvironment === "Yes" || linkedToEnvironment === "Not sure";
 
   const contactPlaceholder = () => {
-    if (contactMethods.includes("Email") && contactMethods.includes("Phone"))    return "Email address or phone number";
+    if (contactMethods.includes("Email") && contactMethods.includes("Phone")) return "Email address or phone number";
     if (contactMethods.includes("Email") && contactMethods.includes("WhatsApp")) return "Email address or WhatsApp number";
     if (contactMethods.includes("Phone") && contactMethods.includes("WhatsApp")) return "Phone or WhatsApp number";
-    if (contactMethods.includes("Email"))    return "Email address e.g. name@example.com";
-    if (contactMethods.includes("Phone"))    return "Phone number e.g. +256 700 000000";
+    if (contactMethods.includes("Email")) return "Email address e.g. name@example.com";
+    if (contactMethods.includes("Phone")) return "Phone number e.g. +256 700 000000";
     if (contactMethods.includes("WhatsApp")) return "WhatsApp number e.g. +256 700 000000";
     return "Email address or phone number";
   };
@@ -149,11 +149,11 @@ export default function ReportPage() {
       },
       reflection: { ...data.reflection, communityImpact, saferCommunity },
       consent: {
-        dataCollection:     data.consent?.dataCollection     || false,
-        referralServices:   data.consent?.referralServices   || false,
+        dataCollection: data.consent?.dataCollection || false,
+        referralServices: data.consent?.referralServices || false,
         anonymizedAdvocacy: data.consent?.anonymizedAdvocacy || false,
-        signature:          data.consent?.signature          || "",
-        consentDate:        data.consent?.consentDate        || "",
+        signature: data.consent?.signature || "",
+        consentDate: data.consent?.consentDate || "",
       },
     };
     try {
@@ -222,9 +222,6 @@ export default function ReportPage() {
               </div>
             )}
 
-            {/* Region */}
-            <TextInput label="Region" name="survivor.region" register={register} optional placeholder="e.g. Western Region, Northern Region" />
-
             {/* District */}
             <div className="mb-4">
               <label className="form-label">District <span className="text-gray-400 font-normal">(optional)</span></label>
@@ -235,14 +232,17 @@ export default function ReportPage() {
             </div>
             {subCounties.length > 0 && (
               <div className="mb-4 animate-[slideUp_0.3s_ease-out]">
+                {/* Region */}
+                <TextInput label="Region" name="survivor.region" register={register} optional placeholder="e.g. Western Region, Northern Region" />
                 <label className="form-label">Sub-County <span className="text-gray-400 font-normal">(optional)</span></label>
-                <select className="form-select" {...register("survivor.subCounty")}>
+                <select className="form-select mb-4" {...register("survivor.subCounty")}>
                   <option value="">— Select sub-county —</option>
                   {subCounties.map(sc => <option key={sc} value={sc}>{sc}</option>)}
                 </select>
+                <TextInput label="Village / Parish / Exact Location" name="survivor.village" register={register} optional placeholder="e.g. Bwaise village, Kamwokya Parish" />
               </div>
             )}
-            <TextInput label="Village / Parish / Exact Location" name="survivor.village" register={register} optional placeholder="e.g. Bwaise village, Kamwokya Parish" />
+
             <TextInput label="Occupation / Source of Livelihood" name="survivor.occupation" register={register} optional />
           </div>
         )}
@@ -610,7 +610,7 @@ export default function ReportPage() {
             {stepWarning && (
               <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs animate-[slideUp_0.3s_ease-out]">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                 </svg>
                 <span>{stepWarning}{confirmSkip ? " Tap Continue again to proceed anyway." : ""}</span>
               </div>
