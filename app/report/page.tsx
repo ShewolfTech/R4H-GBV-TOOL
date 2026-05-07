@@ -261,7 +261,7 @@ export default function ReportPage() {
           </div>
         )}
 
-        {/* STEP 1 — Nature of Violation & Safety */}
+        {/* STEP 1 — Nature of Violation and Safety */}
         {step === 1 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
             <div className="form-section">
@@ -341,7 +341,7 @@ export default function ReportPage() {
               )}
             </div>
             <div className="form-section" style={{ borderColor: "#fecaca", borderWidth: "1.5px" }}>
-              <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Safety & Risk Assessment</h3>
+              <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Safety and Risk Assessment</h3>
               <p className="form-section-subtitle">This helps us prioritise urgent support for you.</p>
               <div className="mb-4">
                 <label className="form-label">Is the survivor currently safe? <span className="text-gray-400 font-normal">(optional)</span></label>
@@ -379,11 +379,11 @@ export default function ReportPage() {
           </div>
         )}
 
-        {/* STEP 2 — Context & Contributing Factors */}
+        {/* STEP 2 — Context and Contributing Factors */}
         {step === 2 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
             <div className="form-section">
-              <h3 className="form-section-title">Link to Identity-Based Violence</h3>
+              <h3 className="form-section-title">Link to Gender-Based Violence</h3>
               <p className="form-section-subtitle">Optional — share only what you feel comfortable with.</p>
               <div className="mb-4">
                 <label className="form-label">Do you believe the violence was related to your sex or gender identity?</label>
@@ -459,7 +459,7 @@ export default function ReportPage() {
         {/* STEP 3 — Reporting */}
         {step === 3 && (
           <div className="form-section animate-[slideUp_0.4s_ease-out]">
-            <h3 className="form-section-title">Section 4: Reporting & Response</h3>
+            <h3 className="form-section-title">Section 4: Reporting and Response</h3>
             <p className="form-section-subtitle">Select everything that applies to your experience.</p>
             <div className="mb-4">
               <label className="form-label">Did you report this incident? <span className="text-gray-400 font-normal">(optional)</span></label>
@@ -544,7 +544,7 @@ export default function ReportPage() {
           </div>
         )}
 
-        {/* STEP 5 — Reflection & Healing */}
+        {/* STEP 5 — Reflection and Healing */}
         {step === 5 && (
           <div className="animate-[slideUp_0.4s_ease-out] space-y-5">
             <div className="form-section">
@@ -586,7 +586,7 @@ export default function ReportPage() {
         {step === 6 && (
           <div className="animate-[slideUp_0.4s_ease-out]">
             <div className="form-section">
-              <h3 className="form-section-title">Section 7: Data Protection & Consent</h3>
+              <h3 className="form-section-title">Section 7: Data Protection and Consent</h3>
               <div className="p-4 rounded-xl border border-yellow-100 bg-yellow-50 mb-5 text-sm text-gray-700 leading-relaxed">
                 <p className="font-semibold text-yellow-800 mb-2">Before you submit</p>
                 <p>By submitting this form, I confirm the information provided is accurate to the best of my knowledge. I understand that <strong>Rights 4 Her Uganda</strong> will use this information strictly for advocacy, referrals, and protection support, under confidentiality and data protection policies.</p>

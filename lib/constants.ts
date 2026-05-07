@@ -153,8 +153,8 @@ export const PERPETRATOR_OPTIONS = [
   "Other"
 ];
 export const SECTIONS = [
-  "Survivor Information", "Nature of Violation & Safety", "Context & Factors",
-  "Reporting & Response", "Current Needs", "Reflection & Healing", "Data Protection",
+  "Survivor Information", "Nature of Violation and Safety", "Context and Factors",
+  "Reporting and Response", "Current Needs", "Reflection and Healing", "Data Protection",
 ];
 
 export const IDENTITY_FACTORS = [

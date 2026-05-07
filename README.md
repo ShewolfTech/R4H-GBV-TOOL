@@ -1,4 +1,4 @@
-# Rights 4 Her Uganda — GBV Documentation & Response Tool
+# Rights 4 Her Uganda — GBV Documentation and Response Tool
 
 A secure, PWA-enabled incident reporting system for gender-based violence cases.
 

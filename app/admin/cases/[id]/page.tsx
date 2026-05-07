@@ -168,20 +168,20 @@ export default function CaseDetail() {
             )}
           </Section>
 
-          <Section title="⚠ Immediate Safety & Risk" danger>
+          <Section title="⚠ Immediate Safety and Risk" danger>
             <InfoRow label="Survivor Currently Safe?" value={inc.isSurvivorSafe} />
             <InfoRow label="Perpetrator Has Access?" value={inc.perpetratorAccess} />
             <InfoRow label="Urgent Support Needed" value={inc.urgentSupport} />
           </Section>
 
-          <Section title="Context & Contributing Factors">
+          <Section title="Context and Contributing Factors">
             <InfoRow label="Linked to SOGI" value={ctx.linkedToSOGI} />
             <InfoRow label="Linked to Environment" value={ctx.linkedToEnvironment} />
             <InfoRow label="Environmental Description" value={ctx.environmentDescription} />
             <InfoRow label="Contributing Factors" value={ctx.contributingFactors} />
           </Section>
 
-          <Section title="Reporting & Response">
+          <Section title="Reporting and Response">
             <InfoRow label="Did Report?" value={rep.didReport} />
             <InfoRow label="Reported To" value={rep.reportedTo} />
             <InfoRow label="Report Outcome" value={rep.reportOutcome} />
@@ -199,7 +199,7 @@ export default function CaseDetail() {
           </Section>
 
           {(ref.communityImpact?.length || ref.communityImpactDetail || ref.saferCommunity?.length || ref.saferCommunityDetail || ref.healingMessage) && (
-            <Section title="Reflection & Healing">
+            <Section title="Reflection and Healing">
               <InfoRow label="Community Impact" value={ref.communityImpact} />
               <InfoRow label="Community Impact (Detail)" value={ref.communityImpactDetail} />
               <InfoRow label="Safer Community Pathways" value={ref.saferCommunity} />
@@ -209,7 +209,7 @@ export default function CaseDetail() {
           )}
 
           {(incident.consent?.dataCollection || incident.consent?.referralServices || incident.consent?.anonymizedAdvocacy || incident.consent?.signature) && (
-            <Section title="Consent & Confidentiality">
+              <Section title="Consent and Confidentiality">
               <InfoRow label="Data Collection" value={incident.consent?.dataCollection ? "Yes" : "No"} />
               <InfoRow label="Referral Services" value={incident.consent?.referralServices ? "Yes" : "No"} />
               <InfoRow label="Anonymized Advocacy" value={incident.consent?.anonymizedAdvocacy ? "Yes" : "No"} />

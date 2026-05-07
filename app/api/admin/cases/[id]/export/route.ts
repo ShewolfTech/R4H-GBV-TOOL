@@ -190,11 +190,11 @@ function buildSingleCasePDF(incident: any) {
       <div class="confidential">🔒 <strong>Confidential</strong> — Contains sensitive survivor data. Handle in accordance with Rights 4 Her Uganda data protection policies.</div>
       ${section("Section 1 — Survivor Information", survivorRows)}
       ${section("Section 2 — Nature of Violation", incidentRows)}
-      ${safetyRows.trim() ? section("⚠ Immediate Safety & Risk Assessment", safetyRows, true) : ""}
-      ${section("Section 3 — Context & Contributing Factors", contextRows)}
-      ${section("Section 4 — Reporting & Response", reportingRows)}
+      ${safetyRows.trim() ? section("⚠ Immediate Safety and Risk Assessment", safetyRows, true) : ""}
+      ${section("Section 3 — Context and Contributing Factors", contextRows)}
+      ${section("Section 4 — Reporting and Response", reportingRows)}
       ${section("Section 5 — Current Needs", needsRows)}
-      ${reflectionRows.trim() ? section("Section 6 — Reflection & Healing", reflectionRows) : ""}
+      ${reflectionRows.trim() ? section("Section 6 — Reflection and Healing", reflectionRows) : ""}
       ${cmRows.trim() ? section("Section 7 — Case Management (Internal)", cmRows) : ""}
     </div>
     <div class="footer">
