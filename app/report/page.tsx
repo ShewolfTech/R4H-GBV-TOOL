@@ -539,7 +539,7 @@ export default function ReportPage() {
             </div>
             <div className="form-section">
               <h3 className="form-section-title">Pathways to Safer Communities</h3>
-              <p className="form-section-subtitle">In your view, what changes would make your community safer and more supportive for women and queer persons? Select any that apply or add your own ideas.</p>
+              <p className="form-section-subtitle">In your view, what changes would make your community safer and more supportive for GBV survivors? Select any that apply or add your own ideas.</p>
               <CheckboxGroup label="" options={["Stronger laws and enforcement against violence", "Safe and inclusive support services (health, legal, shelter)", "Community awareness and education", "Reduced stigma and discrimination", "Economic empowerment and livelihood opportunities", "Safer public spaces and housing", "Accountability for perpetrators", "Inclusion in climate and environmental programs", "Support from community, cultural, and religious leaders", "Protection for human rights defenders", "Other"]} values={saferCommunity} onChange={setSaferCommunity} optional />
               {saferCommunity.includes("Other") && (
                 <TextInput label="Other suggestion" name="reflection.saferCommunityOther" register={register} optional />
