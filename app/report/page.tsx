@@ -240,7 +240,7 @@ export default function ReportPage() {
 
             <div className="mb-4">
               <label className="form-label">Gender <span className="text-red-500">*</span></label>
-              <CheckboxGroup label="" options={GENDER_OPTIONS} values={genderIdentity} onChange={v => { setGenderIdentity(v); setStepErrors(e => ({...e, gender: ""})); }} />
+              <CheckboxGroup label="" options={GENDER_OPTIONS} values={genderIdentity} onChange={(v: string[]) => { setGenderIdentity((v: string[])); setStepErrors(e => ({...e, gender: ""})); }} />
               {fe("gender")}
             </div>
             {genderIdentity.includes("Self-describe") && (
@@ -326,7 +326,7 @@ export default function ReportPage() {
 
               <div className="mb-4">
                 <label className="form-label">Type(s) of Violence Experienced <span className="text-red-500">*</span></label>
-                <CheckboxGroup label="" options={VIOLENCE_TYPES} values={violenceTypes} onChange={v => { setViolenceTypes(v); setStepErrors(e => ({...e, violenceTypes: ""})); }} />
+                <CheckboxGroup label="" options={VIOLENCE_TYPES} values={violenceTypes} onChange={(v: string[]) => { setViolenceTypes((v: string[])); setStepErrors(e => ({...e, violenceTypes: ""})); }} />
                 {fe("violenceTypes")}
               </div>
 
@@ -344,7 +344,7 @@ export default function ReportPage() {
 
               <div className="mb-4">
                 <label className="form-label">Perpetrator <span className="text-red-500">*</span></label>
-                <CheckboxGroup label="" options={PERPETRATOR_OPTIONS} values={perpetrator} onChange={v => { setPerpetrator(v); setStepErrors(e => ({...e, perpetrator: ""})); }} />
+                <CheckboxGroup label="" options={PERPETRATOR_OPTIONS} values={perpetrator} onChange={(v: string[]) => { setPerpetrator((v: string[])); setStepErrors(e => ({...e, perpetrator: ""})); }} />
                 {fe("perpetrator")}
               </div>
               {perpetrator.includes("Other") && (
@@ -412,7 +412,7 @@ export default function ReportPage() {
               <h3 className="form-section-title">Impact of the Violence <span className="text-red-500">*</span></h3>
               <p className="form-section-subtitle">Select all that apply.</p>
               <CheckboxGroup label="" options={["Physical injury", "Emotional / mental distress", "Loss of income / livelihood", "Displacement / homelessness", "Social exclusion / stigma", "Interrupted education", "Health complications", "Fear for safety", "Other"]}
-                values={impactOfViolence} onChange={v => { setImpactOfViolence(v); setStepErrors(e => ({...e, impact: ""})); }} />
+                values={impactOfViolence} onChange={(v: string[]) => { setImpactOfViolence((v: string[])); setStepErrors(e => ({...e, impact: ""})); }} />
               {fe("impact")}
               {impactOfViolence.includes("Other") && (
                 <TextInput label="Describe other impact" name="incident.impactOther" register={register} optional />
@@ -519,7 +519,7 @@ export default function ReportPage() {
               <h3 className="form-section-title">Contributing Factors <span className="text-red-500">*</span></h3>
               <p className="form-section-subtitle">Select all that apply.</p>
               <CheckboxGroup label="" options={CONTRIBUTING_FACTORS} values={contributingFactors}
-                onChange={v => { setContributingFactors(v); setStepErrors(e => ({...e, contributingFactors: ""})); }} />
+                onChange={(v: string[]) => { setContributingFactors((v: string[])); setStepErrors(e => ({...e, contributingFactors: ""})); }} />
               {fe("contributingFactors")}
               {contributingFactors.includes("Other") && (
                 <TextInput label="Please describe" name="context.contributingFactorsOther" register={register} optional />
@@ -586,7 +586,7 @@ export default function ReportPage() {
             <div className="mb-4">
               <label className="form-label">Support services received <span className="text-red-500">*</span> <span className="text-gray-400 font-normal text-xs">(select 'None' if not applicable)</span></label>
               <CheckboxGroup label="" options={SUPPORT_SERVICES} values={servicesReceived}
-                onChange={v => { setServicesReceived(v); setStepErrors(e => ({...e, servicesReceived: ""})); }} />
+                onChange={(v: string[]) => { setServicesReceived((v: string[])); setStepErrors(e => ({...e, servicesReceived: ""})); }} />
               {fe("servicesReceived")}
               {servicesReceived.includes("Other") && (
                 <TextInput label="Other service" name="reporting.servicesOther" register={register} optional />
@@ -609,7 +609,7 @@ export default function ReportPage() {
               <div className="mb-4">
                 <label className="form-label">Priority support needed <span className="text-red-500">*</span></label>
                 <CheckboxGroup label="" options={PRIORITY_SUPPORT} values={prioritySupport}
-                  onChange={v => { setPrioritySupport(v); setStepErrors(e => ({...e, prioritySupport: ""})); }} />
+                  onChange={(v: string[]) => { setPrioritySupport((v: string[])); setStepErrors(e => ({...e, prioritySupport: ""})); }} />
                 {fe("prioritySupport")}
                 {prioritySupport.includes("Other") && (
                   <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
@@ -666,7 +666,7 @@ export default function ReportPage() {
               <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Risk Indicator <span className="text-red-500">*</span></h3>
               <p className="form-section-subtitle">Select all that apply. Select "None of the above" if not applicable.</p>
               <CheckboxGroup label="" options={["Survivor is in immediate danger", "Perpetrator has ongoing access to survivor", "Survivor has no safe place to stay", "Survivor requires urgent medical attention", "None of the above"]}
-                values={immediateRisk} onChange={v => { setImmediateRisk(v); setStepErrors(e => ({...e, immediateRisk: ""})); }} />
+                values={immediateRisk} onChange={(v: string[]) => { setImmediateRisk((v: string[])); setStepErrors(e => ({...e, immediateRisk: ""})); }} />
               {fe("immediateRisk")}
             </div>
           </div>
