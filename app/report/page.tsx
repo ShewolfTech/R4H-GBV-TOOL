@@ -519,7 +519,7 @@ export default function ReportPage() {
               <h3 className="form-section-title">Contributing Factors <span className="text-red-500">*</span></h3>
               <p className="form-section-subtitle">Select all that apply.</p>
               <CheckboxGroup label="" options={CONTRIBUTING_FACTORS} values={contributingFactors}
-                onChange={v => { setContributingFactors(v); setStepErrors(e => ({...e, contributingFactors: ""})); }} />
+                onChange={(v: string[]) => { setContributingFactors(v); setStepErrors(e => ({...e, contributingFactors: ""})); }} />
               {fe("contributingFactors")}
               {contributingFactors.includes("Other") && (
                 <TextInput label="Please describe" name="context.contributingFactorsOther" register={register} optional />
@@ -586,7 +586,7 @@ export default function ReportPage() {
             <div className="mb-4">
               <label className="form-label">Support services received <span className="text-red-500">*</span> <span className="text-gray-400 font-normal text-xs">(select 'None' if not applicable)</span></label>
               <CheckboxGroup label="" options={SUPPORT_SERVICES} values={servicesReceived}
-                onChange={v => { setServicesReceived(v); setStepErrors(e => ({...e, servicesReceived: ""})); }} />
+                onChange={(v: string[]) => { setServicesReceived(v); setStepErrors(e => ({...e, servicesReceived: ""})); }} />
               {fe("servicesReceived")}
               {servicesReceived.includes("Other") && (
                 <TextInput label="Other service" name="reporting.servicesOther" register={register} optional />
@@ -609,7 +609,7 @@ export default function ReportPage() {
               <div className="mb-4">
                 <label className="form-label">Priority support needed <span className="text-red-500">*</span></label>
                 <CheckboxGroup label="" options={PRIORITY_SUPPORT} values={prioritySupport}
-                  onChange={v => { setPrioritySupport(v); setStepErrors(e => ({...e, prioritySupport: ""})); }} />
+                  onChange={(v: string[]) => { setPrioritySupport(v); setStepErrors(e => ({...e, prioritySupport: ""})); }} />
                 {fe("prioritySupport")}
                 {prioritySupport.includes("Other") && (
                   <TextInput label="Other support needed" name="needs.prioritySupportOther" register={register} optional />
@@ -666,7 +666,7 @@ export default function ReportPage() {
               <h3 className="form-section-title" style={{ color: "#b91c1c" }}>⚠ Immediate Risk Indicator <span className="text-red-500">*</span></h3>
               <p className="form-section-subtitle">Select all that apply. Select "None of the above" if not applicable.</p>
               <CheckboxGroup label="" options={["Survivor is in immediate danger", "Perpetrator has ongoing access to survivor", "Survivor has no safe place to stay", "Survivor requires urgent medical attention", "None of the above"]}
-                values={immediateRisk} onChange={v => { setImmediateRisk(v); setStepErrors(e => ({...e, immediateRisk: ""})); }} />
+                values={immediateRisk} onChange={(v: string[]) => { setImmediateRisk(v); setStepErrors(e => ({...e, immediateRisk: ""})); }} />
               {fe("immediateRisk")}
             </div>
           </div>
