@@ -55,7 +55,7 @@ export default function ReportPage() {
     trigger,
     getValues,
     formState: { errors }
-  } = useForm();
+  } = useForm<any>();
 
   const subCounties = selectedDistrict ? (UGANDA_DISTRICTS[selectedDistrict] || []) : [];
   const showDigital = violenceTypes.includes("Digital/Online Abuse");
