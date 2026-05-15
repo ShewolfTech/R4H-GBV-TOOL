@@ -240,7 +240,7 @@ export default function ReportPage() {
 
             <div className="mb-4">
               <label className="form-label">Gender <span className="text-red-500">*</span></label>
-              <CheckboxGroup label="" options={GENDER_OPTIONS} values={genderIdentity} onChange={v => { setGenderIdentity(v); setStepErrors(e => ({...e, gender: ""})); }} />
+              <CheckboxGroup label="" options={GENDER_OPTIONS} values={genderIdentity} onChange={(v: string[]) => { setGenderIdentity(v); setStepErrors(e => ({...e, gender: ""})); }} />
               {fe("gender")}
             </div>
             {genderIdentity.includes("Self-describe") && (
