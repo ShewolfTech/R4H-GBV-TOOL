@@ -344,7 +344,7 @@ export default function ReportPage() {
 
               <div className="mb-4">
                 <label className="form-label">Perpetrator <span className="text-red-500">*</span></label>
-                <CheckboxGroup label="" options={PERPETRATOR_OPTIONS} values={perpetrator} onChange={v => { setPerpetrator(v); setStepErrors(e => ({...e, perpetrator: ""})); }} />
+                <CheckboxGroup label="" options={PERPETRATOR_OPTIONS} values={perpetrator} onChange={(v: string[]) => { setPerpetrator(v); setStepErrors(e => ({...e, perpetrator: ""})); }} />
                 {fe("perpetrator")}
               </div>
               {perpetrator.includes("Other") && (
