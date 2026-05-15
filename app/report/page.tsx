@@ -326,7 +326,7 @@ export default function ReportPage() {
 
               <div className="mb-4">
                 <label className="form-label">Type(s) of Violence Experienced <span className="text-red-500">*</span></label>
-                <CheckboxGroup label="" options={VIOLENCE_TYPES} values={violenceTypes} onChange={v => { setViolenceTypes(v); setStepErrors(e => ({...e, violenceTypes: ""})); }} />
+                <CheckboxGroup label="" options={VIOLENCE_TYPES} values={violenceTypes} onChange={(v: string[]) => { setViolenceTypes(v); setStepErrors(e => ({...e, violenceTypes: ""})); }} />
                 {fe("violenceTypes")}
               </div>
 
