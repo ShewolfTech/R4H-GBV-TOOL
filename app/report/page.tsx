@@ -412,7 +412,7 @@ export default function ReportPage() {
               <h3 className="form-section-title">Impact of the Violence <span className="text-red-500">*</span></h3>
               <p className="form-section-subtitle">Select all that apply.</p>
               <CheckboxGroup label="" options={["Physical injury", "Emotional / mental distress", "Loss of income / livelihood", "Displacement / homelessness", "Social exclusion / stigma", "Interrupted education", "Health complications", "Fear for safety", "Other"]}
-                values={impactOfViolence} onChange={v => { setImpactOfViolence(v); setStepErrors(e => ({...e, impact: ""})); }} />
+                values={impactOfViolence} onChange={(v: string[]) => { setImpactOfViolence(v); setStepErrors(e => ({...e, impact: ""})); }} />
               {fe("impact")}
               {impactOfViolence.includes("Other") && (
                 <TextInput label="Describe other impact" name="incident.impactOther" register={register} optional />
